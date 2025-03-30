@@ -1,0 +1,49 @@
+{% extends "admin/change_list.html" %} {% load static %} {% block content %} {%
+if student_info %}
+<div class="student-info-card">
+  <div class="student-header">
+    <div class="student-image">
+      {% if student_info.profile_image %}
+      <img
+        src="{{ student_info.profile_image }}"
+        alt="{{ student_info.name }}"
+      />
+      {% else %}
+      <img
+        src="{% static 'images/default-profile.png' %}"
+        alt="Default Profile"
+      />
+      {% endif %}
+    </div>
+    <div class="student-name">
+      <h2>{{ student_info.name }}</h2>
+      <span class="registration-number"
+        >Registration No: {{ student_info.registration_number }}</span
+      >
+    </div>
+  </div>
+
+  <div class="student-details">
+    <table class="detail-table">
+      <tr>
+        <th>Class</th>
+        <td>{{ student_info.class }}</td>
+        <th>Fee Due</th>
+        <td>₹{{ student_info.fee_due }}</td>
+      </tr>
+      <tr>
+        <th>Phone</th>
+        <td>{{ student_info.phone_number }}</td>
+        <th>Email</th>
+        <td>{{ student_info.email }}</td>
+      </tr>
+      <tr>
+        <th>Father's Name</th>
+        <td>{{ student_info.father_name }}</td>
+        <th>Address</th>
+        <td>{{ student_info.address }}</td>
+      </tr>
+    </table>
+  </div>
+</div>
+{% endif %} {{ block.super }} {% endblock %}

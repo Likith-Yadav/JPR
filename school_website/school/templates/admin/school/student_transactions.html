@@ -1,0 +1,212 @@
+{% extends "admin/base_site.html" %} {% load static %} {% block extrastyle %}
+<style>
+  .student-profile {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+  }
+
+  .profile-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #f8f9fa;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .student-info {
+    flex-grow: 1;
+  }
+
+  .student-info h1 {
+    font-size: 28px;
+    color: #2c3e50;
+    margin-bottom: 15px;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+
+  .info-item {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+  }
+
+  .info-label {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 5px;
+  }
+
+  .info-value {
+    font-size: 18px;
+    color: #2c3e50;
+    font-weight: 500;
+  }
+
+  .fee-section {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin-bottom: 30px;
+  }
+
+  .fee-section h2 {
+    font-size: 24px;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e9ecef;
+  }
+
+  .transaction-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  .transaction-table th {
+    background: #f8f9fa;
+    padding: 15px;
+    text-align: left;
+    font-size: 16px;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+  }
+
+  .transaction-table td {
+    padding: 15px;
+    font-size: 16px;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .status-paid {
+    color: #28a745;
+    font-weight: 500;
+  }
+
+  .status-unpaid {
+    color: #dc3545;
+    font-weight: 500;
+  }
+
+  .amount {
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 500;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="student-profile">
+  {% if student.profile_image %}
+  <img
+    src="{{ student.profile_image.url }}"
+    alt="Profile"
+    class="profile-image"
+  />
+  {% else %}
+  <img
+    src="{% static 'images/default-profile.png' %}"
+    alt="Default Profile"
+    class="profile-image"
+  />
+  {% endif %}
+
+  <div class="student-info">
+    <h1>{{ student.Name }}</h1>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Registration Number</div>
+        <div class="info-value">{{ student.registration_number }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Class</div>
+        <div class="info-value">{{ student.Class }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Phone Number</div>
+        <div class="info-value">{{ student.phone_number }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Email</div>
+        <div class="info-value">{{ student.email }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Total Fee Due</div>
+        <div class="info-value">₹{{ student.Fee_Due }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fee-section">
+  <h2>One-Time Fees (Admission & Application)</h2>
+  <table class="transaction-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Category</th>
+        <th>Amount</th>
+        <th>Transaction ID</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for transaction in onetime_transactions %}
+      <tr>
+        <td>{{ transaction.date|date:"d M Y" }}</td>
+        <td>{{ transaction.category }}</td>
+        <td class="amount">₹{{ transaction.amount }}</td>
+        <td>{{ transaction.transaction_id }}</td>
+        <td
+          class="{% if transaction.status %}status-paid{% else %}status-unpaid{% endif %}"
+        >
+          {{ transaction.status|yesno:"Paid,Unpaid" }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="fee-section">
+  <h2>Monthly Fee History (Tuition)</h2>
+  <table class="transaction-table">
+    <thead>
+      <tr>
+        <th>Month</th>
+        <th>Total Amount Paid</th>
+        <th>Transaction ID</th>
+        <th>Payment Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for transaction in monthly_transactions %}
+      <tr>
+        <td>{{ transaction.month }}</td>
+        <td class="amount">₹{{ transaction.amount|default:"-" }}</td>
+        <td>{{ transaction.transaction_id|default:"-" }}</td>
+        <td>{{ transaction.payment_date|default:"-" }}</td>
+        <td
+          class="{% if transaction.status %}status-paid{% else %}status-unpaid{% endif %}"
+        >
+          {{ transaction.status|yesno:"Paid,Unpaid" }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

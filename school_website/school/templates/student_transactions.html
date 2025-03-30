@@ -1,0 +1,94 @@
+<div class="student-profile-header">
+  <div class="profile-card">
+    {% if user_profile.profile_image %}
+    <img
+      src="{{ user_profile.profile_image.url }}"
+      alt="{{ user_profile.Name }}"
+      class="profile-image"
+    />
+    {% else %}
+    <img
+      src="{% static 'images/default-profile.png' %}"
+      alt="Default Profile"
+      class="profile-image"
+    />
+    {% endif %}
+    <div class="student-info">
+      <h2>{{ user_profile.Name }}</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Registration Number:</span>
+          <span class="value">{{ user_profile.registration_number }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Class:</span>
+          <span class="value">{{ user_profile.Class }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Total Fee Due:</span>
+          <span class="value fee-due">₹{{ user_profile.Fee_Due }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fee-sections">
+  <div class="section-card">
+    <h3>One-Time Fees (Admission & Application)</h3>
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Transaction ID</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for transaction in one_time_fees %}
+          <tr>
+            <td>{{ transaction.date }}</td>
+            <td>{{ transaction.category }}</td>
+            <td>₹{{ transaction.amount }}</td>
+            <td>{{ transaction.transaction_id }}</td>
+            <td class="status-{{ transaction.status|lower }}">
+              {{ transaction.status }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h3>Monthly Fee History (Tuition)</h3>
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Total Amount Paid</th>
+            <th>Transaction ID</th>
+            <th>Payment Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fee in monthly_fees %}
+          <tr class="{% if fee.status == 'Unpaid' %}unpaid-row{% endif %}">
+            <td>{{ fee.month }}</td>
+            <td>{% if fee.amount %}₹{{ fee.amount }}{% else %}-{% endif %}</td>
+            <td>{{ fee.transaction_id|default:"-" }}</td>
+            <td>{{ fee.payment_date|default:"-" }}</td>
+            <td class="status-{{ fee.status|lower }}">{{ fee.status }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Receipt</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #333;
+      }
+      .logo {
+        margin: 20px;
+      }
+      .container {
+        padding: 20px;
+        width: 80%;
+        margin: auto;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #f9f9f9;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        display: flex;
+        margin-bottom: 20px;
+      }
+      .description {
+        margin: 20px;
+      }
+      .header img {
+        max-width: 150px;
+      }
+      .header h1 {
+        margin: 10px 0;
+        font-size: 24px;
+        color: #222;
+      }
+      .header p {
+        font-size: 14px;
+        color: #555;
+      }
+      .details {
+        margin: 20px 20px;
+      }
+      .details table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .details th,
+      .details td {
+        text-align: left;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+      }
+      .details th {
+        background-color: #f4f4f4;
+        color: #333;
+      }
+      .payment-categories {
+        margin: 20px 20px;
+      }
+      .payment-categories table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      .payment-categories th,
+      .payment-categories td {
+        text-align: left;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+      }
+      .payment-categories th {
+        background-color: #f4f4f4;
+        color: #333;
+      }
+      .total-row {
+        font-weight: bold;
+        background-color: #f9f9f9;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 18px;
+        color: #777;
+      }
+      .signature {
+        margin-top: 30px;
+        text-align: center;
+        color: #777;
+      }
+      .signature-line {
+        border-top: 2px solid #777;
+        width: 800px;
+        margin-top: 5px;
+        color: #777;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">
+          <img src="{{ logo_url }}" />
+        </div>
+        <div class="description">
+          <h1>JPR Public School</h1>
+          <p>Educating for a Brighter Future</p>
+        </div>
+      </div>
+      <h2 style="text-align: center">Transaction Receipt</h2>
+      <div class="details">
+        <table>
+          <tr>
+            <th>Student Name</th>
+            <td>{{ name }}</td>
+          </tr>
+          <tr>
+            <th>Registration Number</th>
+            <td>{{ registration_number }}</td>
+          </tr>
+          <tr>
+            <th>Class</th>
+            <td>{{ class }}</td>
+          </tr>
+          <tr>
+            <th>Date</th>
+            <td>{{ date|date:"d M Y" }} {{ time|time:"H:i" }}</td>
+          </tr>
+          <tr>
+            <th>Payment Mode</th>
+            <td>{{ payment_mode }}</td>
+          </tr>
+          {% if status %}
+          <tr>
+            <th>Transaction ID</th>
+            <td>{{ transaction_id }}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th>Received By</th>
+            <td>{{ receiver }}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="payment-categories">
+        <h3>Payment Details</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Amount</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for category in payment_categories %}
+            <tr>
+              <td>{{ category.get_category_display }}</td>
+              <td>₹{{ category.amount }}</td>
+              <td>{{ category.description|default:'' }}</td>
+            </tr>
+            {% endfor %}
+            <tr class="total-row">
+              <td>Total Amount</td>
+              <td>₹{{ total_amount }}</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Fee Due</td>
+              <td>₹{{ fee_due }}</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {% if status %}
+      <div class="signature">
+        <p>Digitally Signed by Public School</p>
+        <p style="font-size: 10px">{{ digital_signature }}</p>
+      </div>
+      {% else %}
+      <div class="signature">
+        <p>Authorized Signature</p>
+        <div class="signature-line"></div>
+        <p><br /><br /></p>
+      </div>
+      {% endif %}
+
+      <div class="footer">
+        <p>Thank you for your payment!</p>
+        <p>For queries, contact support@publicschool.com</p>
+      </div>
+    </div>
+  </body>
+</html>

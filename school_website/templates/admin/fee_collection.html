@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Fee Collection - {{ student.user.get_full_name }}</h2>
+    <p>Admission Number: {{ student.admission_number }}</p>
+    <p>Current Due: ₹{{ student.total_fees_due }}</p>
+
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        
+        <div class="card">
+            <div class="card-header">
+                <h4>Select Fee Categories</h4>
+            </div>
+            <div class="card-body">
+                {{ fee_item_form.non_field_errors }}
+                
+                {% for field in fee_item_form %}
+                    {% if 'category_' in field.name %}
+                        <div class="row mb-3 fee-item">
+                            <div class="col-md-4">
+                                {{ field }}
+                                {{ field.label_tag }}
+                            </div>
+                            <div class="col-md-4">
+                                {% with amount_field_name=field.name|replace:"category_"|prepend:"amount_" %}
+                                    {{ fee_item_form|get_form_field:amount_field_name }}
+                                {% endwith %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        {{ fee_item_form.other_fee_description }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ fee_item_form.other_fee_amount }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h4>Payment Details</h4>
+            </div>
+            <div class="card-body">
+                {{ transaction_form.as_p }}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Process Payment</button>
+    </form>
+</div>
+{% endblock %} 

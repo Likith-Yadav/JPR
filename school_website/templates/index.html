@@ -1,0 +1,3248 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% block scr %}{% endblock scr %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% block title %}JPR Educational Institute{% endblock title %}
+    </title>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+
+    <!-- Styles -->
+    <style>
+              :root {
+                  --primary-blue: #002D62;
+                  --golden-yellow:rgba(223, 223, 69, 0.94);
+                  --white: #ffffff;
+              }
+
+              body {
+                  margin: 0;
+                  font-family: 'Roboto', sans-serif;
+              }
+              /* Logo Loading Animation */
+              .logo-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background-color: #ffffff;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                opacity: 1;
+                transition: opacity 0.5s ease;
+              }
+
+              .logo-container.hidden {
+                opacity: 0;
+                pointer-events: none;
+              }
+
+              .logo-container img {
+                width: 450px;
+                animation: scaleLogo 2s ease-out forwards;
+                filter: none;
+              }
+
+              @keyframes scaleLogo {
+                0% {
+                  transform: scale(1);
+                  opacity: 1;
+                }
+                50% {
+                  transform: scale(1.2);
+                  opacity: 1;
+                }
+                100% {
+                  transform: scale(20);
+                  opacity: 0;
+                }
+              }
+
+              @media (max-width: 768px) {
+                .logo-container img {
+                  width: 300px;
+                }
+              }
+
+              @media (max-width: 480px) {
+                .logo-container img {
+                  width: 200px;
+                }
+              }
+
+              /* Navbar Styles */
+              .navbar-toggle {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                width: 80px;
+                height: 50px;
+                background-color:rgba(64, 123, 249, 0) ;
+                border: none;
+                /* border: 3px solid #fff; */
+                /* border-radius: 50%; */
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+                justify-content: center;
+                cursor: pointer;
+                z-index: 1001;
+                transition: transform 0.3s, background-color 0.3s;
+              }
+
+              .navbar-toggle:hover {
+                background-color: #0056c000;
+                transform: scale(0.9);
+
+                .bar {
+                  height: 3px;
+                  /* width: 40px; */
+                  /* margin: 0px; */
+                  align-self: self-start;
+              }
+                .bar2 {
+                  height: 3px;
+                  /* width: 40px; */
+                  align-self: self-end;
+                  /* margin: 0px; */
+              }
+              }
+
+              .navbar-toggle  .bar {
+                width: 50px;
+                height: 3px;
+                background-color: #fff;
+                /* border-radius: 2px; */
+                margin: 3px 0;
+              }
+
+              .bar2 {
+                width: 50px;
+                height: 3px;
+                background-color: #fff;
+                justify-self: right;
+                /* border-radius: 2px; */
+                margin: 3px 0;
+              }
+              /* Updated Side Navbar for Full Curved Design */
+              .side-navbar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 280px;
+                height: 100vh;
+                background-color: #002D62;
+                color: #fff;
+                border-top-right-radius: 240px;
+                border-bottom-right-radius: 240px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transform: translateX(-100%);
+                transition: transform 0.4s ease-in-out;
+                z-index: 1000;
+              }
+
+              .side-navbar.active {
+                transform: translateX(0);
+              }
+
+              .side-navbar a {
+                color: #fff;
+                text-decoration: none;
+                margin: 20px 0;
+                font-size: 1.2em;
+                transition: color 0.3s ease;
+                cursor: pointer;
+              }
+
+              .side-navbar a:hover {
+                color: #FFD700;
+              }
+
+              /* Blur Effect */
+              .blur:not(.side-navbar):not(.navbar-toggle) {
+                filter: blur(4px);
+                pointer-events: none;
+              }
+      {% block extrastyles %}
+      .menu-toggle {
+        display: none;
+        font-size: 1.8em;
+        cursor: pointer;
+      }
+
+      .menu-close {
+        display: none;
+        font-size: 1.8rem;
+        color: white;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        cursor: pointer;
+        z-index: 21;
+      }
+
+      /* Hero Banner */
+      .hero-banner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+                to bottom,
+                rgba(0, 45, 98, 0.3),
+                rgba(0, 45, 98, 0.4)
+            ),
+            url('') no-repeat center/cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: var(--white);
+        overflow: hidden;
+        margin: 0; /* Added margin: 0 */
+        padding: 0; /* Added padding: 0 */
+      }
+
+      .hero-banner .content {
+        position: relative;
+        z-index: 2;
+        padding: 2.5rem;
+        max-width: 900px;
+        margin: 0 auto;
+        border-radius: 20px;
+        transition: all 0.5s ease; /* Increased duration */
+      }
+
+      .hero-banner .content-wrapper {
+        padding: 2rem;
+        border-radius: 20px;
+        opacity: 0; /* Hide by default */
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+        background: transparent;
+      }
+
+      /* Show glass effect only on hover */
+      .hero-banner .content:hover .content-wrapper {
+        opacity: 1;
+        transform: translateY(0);
+        background: rgba(0, 45, 98, 0.3);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+      }
+
+      .hero-banner .headline,
+      .hero-banner .subtext,
+      .hero-banner .cta-button {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+
+      .hero-banner .content:hover .headline,
+      .hero-banner .content:hover .subtext,
+      .hero-banner .content:hover .cta-button {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      /* Existing styles for headline, subtext, and cta-button remain the same */
+      .headline {
+        font-size: 3.5rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--golden-yellow);
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
+      }
+
+      .subtext {
+        font-size: 1.8rem;
+        font-weight: 400;
+        font-family: 'Roboto', sans-serif;
+        margin-bottom: 2.5rem;
+        line-height: 1.4;
+        color: var(--white);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      .cta-button {
+        font-size: 1.2rem;
+        font-weight: 600;
+        padding: 1rem 2.5rem;
+        color: var(--primary-blue);
+        background-color: var(--golden-yellow);
+        border-radius: 50px;
+        text-transform: uppercase;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .cta-button:hover {
+        background-color: var(--white);
+        transform: translateY(-5px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .hero-banner .content-wrapper {
+          padding: 1.5rem;
+        }
+
+        .headline {
+          font-size: 2.5rem;
+        }
+
+        .subtext {
+          font-size: 1.4rem;
+        }
+
+        .cta-button {
+          font-size: 1rem;
+          padding: 0.8rem 2rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .hero-banner .content-wrapper {
+          padding: 1rem;
+        }
+
+        .headline {
+          font-size: 2rem;
+        }
+
+        .subtext {
+          font-size: 1.2rem;
+        }
+
+        .cta-button {
+          font-size: 0.9rem;
+          padding: 0.7rem 1.8rem;
+        }
+      }
+
+      /* Animations */
+      @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .hero-banner {
+            height: 70vh;
+            background-size: cover;
+        }
+
+        .headline {
+            font-size: 2rem;
+        }
+
+        .subtext {
+            font-size: 1.2rem;
+        }
+
+        .cta-button {
+            font-size: 1rem;
+            padding: 0.6rem 1.5rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .hero-banner {
+            height: 60vh;
+            text-align: center;
+        }
+
+        .headline {
+            font-size: 1.8rem;
+        }
+
+        .subtext {
+            font-size: 1rem;
+        }
+
+        .cta-button {
+            font-size: 0.9rem;
+            padding: 0.5rem 1.2rem;
+        }
+
+      }
+      /* Login Button */
+      .login-button {
+      position: absolute;
+      top: 40px;
+      right: 20px;
+      z-index: 1000;
+      }
+
+      .login-btn {
+      padding: 8px 16px;
+      font-size: 1rem;
+      color: var(--primary-blue);
+      background-color: var(--golden-yellow);
+      border: none;
+      border-radius: 20px;
+      text-decoration: none;
+      transition: all 0.3s ease-in-out;
+      font-family: 'Roboto', sans-serif;
+      }
+
+      .login-btn:hover {
+      background-color: var(--white);
+      color: var(--primary-blue);
+      transform: scale(1.05);
+      }
+      .section {
+        display: none; /* Hide all sections */
+      }
+
+      .section.active {
+        display: block; /* Show the active section */
+      }
+
+      #home {
+        display: block; /* Always show home section by default */
+      }
+
+      /* Additional Styles */
+      .quick-links-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 20px;
+          padding: 40px 20px;
+      }
+
+      .quick-link-card {
+          background: var(--primary-blue);
+          color: var(--white);
+          padding: 30px;
+          border-radius: 10px;
+          text-align: center;
+          transition: transform 0.3s ease;
+          cursor: pointer;
+      }
+
+      .quick-link-card:hover {
+          transform: translateY(-5px);
+          background: #003d82;
+      }
+
+      .quick-link-card i {
+          font-size: 2.5em;
+          color: var(--golden-yellow);
+          margin-bottom: 15px;
+      }
+
+      .calendar-events {
+          background: #f5f5f5;
+          padding: 40px 20px;
+      }
+
+      .calendar-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 30px;
+          max-width: 1200px;
+          margin: 0 auto;
+      }
+
+      .event-card {
+          background: var(--white);
+          border-radius: 10px;
+          overflow: hidden;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          display: flex;
+          flex-direction: column;
+      }
+
+      .event-date {
+          background: var(--primary-blue);
+          color: var(--white);
+          padding: 10px;
+          text-align: center;
+      }
+
+      .event-content {
+          padding: 20px;
+          flex-grow: 1;
+      }
+
+      .event-title {
+          color: var(--primary-blue);
+          margin-bottom: 10px;
+      }
+
+      .spotlight-section {
+          padding: 60px 20px;
+          background: linear-gradient(rgba(0, 45, 98, 0.9), rgba(0, 45, 98, 0.9)),
+                      url('https://images.unsplash.com/photo-1523050854058-8df90110c9fHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80') center/cover;
+          color: var(--white);
+          text-align: center;
+      }
+
+      .spotlight-content {
+          max-width: 800px;
+          margin: 0 auto;
+      }
+
+      .spotlight-title {
+          color: var(--golden-yellow);
+          margin-bottom: 20px;
+      }
+
+      .resources-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 20px;
+          padding: 40px 20px;
+      }
+
+      .resource-item {
+          background: var(--white);
+          padding: 20px;
+          border-radius: 10px;
+          text-align: center;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s ease;
+      }
+
+      .resource-item:hover {
+          transform: translateY(-5px);
+      }
+
+      .resource-icon {
+          font-size: 2em;
+          color: var(--primary-blue);
+          margin-bottom: 10px;
+      }
+
+      /* Additional section styling */
+      .section-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 20px;
+      }
+
+      .welcome-message {
+          text-align: center;
+          padding: 60px 20px;
+          background: linear-gradient(to right, rgba(0, 45, 98, 0.05), rgba(0, 45, 98, 0.1));
+          border-radius: 15px;
+          margin: 40px auto;
+      }
+
+      .welcome-message h2 {
+          color: var(--primary-blue);
+          font-size: 2.5em;
+          margin-bottom: 20px;
+      }
+
+      .welcome-message p {
+          font-size: 1.2em;
+          line-height: 1.6;
+          max-width: 800px;
+          margin: 0 auto;
+          color: #333;
+      }
+
+      .key-highlights {
+          padding: 40px 0;
+          max-width: 900px;
+          margin: 0 auto;
+      }
+
+      .key-highlights h3 {
+          color: var(--primary-blue);
+          font-size: 1.8em;
+          text-align: center;
+          margin-bottom: 30px;
+      }
+
+      .key-highlights ul {
+          list-style: none;
+          padding: 0;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 25px;
+      }
+
+      .key-highlights li {
+          background: white;
+          padding: 25px;
+          border-radius: 10px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s ease;
+          display: flex;
+          align-items: flex-start;
+          gap: 15px;
+      }
+
+      .key-highlights li:hover {
+          transform: translateY(-5px);
+      }
+
+      .key-highlights li strong {
+          color: var(--primary-blue);
+          display: block;
+          margin-bottom: 5px;
+      }
+
+      .section-divider {
+          height: 3px;
+          background: linear-gradient(to right, var(--primary-blue), var(--golden-yellow));
+          margin: 40px auto;
+          max-width: 200px;
+          border-radius: 3px;
+      }
+
+      /* Additional Page Styles */
+      .page-hero {
+          position: relative;
+          width: 100%;
+          height: 100vh; /* Changed from 60vh to 100vh */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          color: var(--white);
+          overflow: hidden;
+          margin: 0; /* Added margin: 0 */
+          padding: 0; /* Added padding: 0 */
+      }
+
+      .about-hero {
+          background: linear-gradient(rgba(0, 45, 98, 0.8), rgba(0, 45, 98, 0.9)),
+                      url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3') center/cover;
+      }
+
+      .academics-hero {
+          background: linear-gradient(rgba(0, 45, 98, 0.8), rgba(0, 45, 98, 0.9)),
+                      url('https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?ixlib=rb-4.0.3') center/cover;
+      }
+
+      .contact-hero {
+          background: linear-gradient(rgba(0, 45, 98, 0.8), rgba(0, 45, 98, 0.9)),
+                      url('https://images.unsplash.com/photo-1516321497487-e288fb19713f?ixlib=rb-4.0.3') center/cover;
+      }
+
+      .page-hero-content {
+          position: relative;
+          z-index: 2;
+          max-width: 800px;
+          padding: 2rem;
+      }
+
+      .page-hero-title {
+          font-size: 3rem;
+          font-weight: 800;
+          color: var(--golden-yellow);
+          margin-bottom: 1rem;
+          text-transform: uppercase;
+      }
+
+      .page-hero-subtitle {
+          font-size: 1.5rem;
+          color: var(--white);
+          margin-bottom: 2rem;
+      }
+
+      .about-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 30px;
+          padding: 40px 20px;
+      }
+
+      .about-card {
+          background: var(--white);
+          padding: 30px;
+          border-radius: 10px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          text-align: center;
+      }
+
+      .about-card h3 {
+          color: var(--primary-blue);
+          margin-bottom: 15px;
+          font-size: 1.5rem;
+      }
+
+      .about-icon {
+          font-size: 2.5rem;
+          color: var(--golden-yellow);
+          margin-bottom: 20px;
+      }
+
+      .timeline {
+          position: relative;
+          max-width: 1200px;
+          margin: 40px auto;
+          padding: 20px;
+      }
+
+      .timeline::before {
+        content: '';
+        position: absolute;
+        width: 4px;
+        background: linear-gradient(to bottom, var(--primary-blue), var(--golden-yellow));
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        margin-left: -2px;
+        border-radius: 2px;
+      }
+
+      .timeline-item {
+        padding: 10px 40px;
+        position: relative;
+        width: 50%;
+        box-sizing: border-box;
+        margin-bottom: 30px;
+        opacity: 0;
+        transform: translateX(-100px);
+        transition: all 0.5s ease;
+      }
+
+      .timeline-item:nth-child(even) {
+        left: 50%;
+        transform: translateX(100px);
+      }
+
+      .timeline-item.show {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .timeline-dot {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        right: -10px;
+        background-color: var(--golden-yellow);
+        border: 4px solid var(--primary-blue);
+        border-radius: 50%;
+        top: 15px;
+        z-index: 1;
+        transition: all 0.3s ease;
+      }
+
+      .timeline-item:nth-child(even) .timeline-dot {
+        left: -10px;
+      }
+
+      .timeline-content {
+        padding: 25px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
+        transition: all 0.3s ease;
+      }
+
+      .timeline-content:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .timeline-year {
+        font-size: 1.8em;
+        font-weight: 700;
+        color: var(--primary-blue);
+        margin-bottom: 5px;
+      }
+
+      .timeline-title {
+        font-size: 1.2em;
+        font-weight: 600;
+        color: var(--golden-yellow);
+        margin-bottom: 10px;
+      }
+
+      .timeline-content p {
+        margin: 0;
+        line-height: 1.6;
+        color: #666;
+      }
+
+      @media screen and (max-width: 768px) {
+        .timeline::before {
+          left: 31px;
+        }
+
+        .timeline-item {
+          width: 100%;
+          padding-left: 70px;
+          padding-right: 25px;
+          margin-bottom: 30px;
+        }
+
+        .timeline-item:nth-child(even) {
+          left: 0;
+        }
+
+        .timeline-dot {
+          left: 21px;
+        }
+
+        .timeline-item:nth-child(even) .timeline-dot {
+          left: 21px;
+        }
+      }
+
+      .contact-info {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 30px;
+          padding: 40px 20px;
+          background: #f5f5f5;
+      }
+
+      .contact-card {
+          background: var(--white);
+          padding: 30px;
+          border-radius: 10px;
+          text-align: center;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .contact-icon {
+          font-size: 2.5rem;
+          color: var(--primary-blue);
+          margin-bottom: 20px;
+      }
+
+      .contact-form {
+          max-width: 600px;
+          margin: 40px auto;
+          padding: 30px;
+          background: var(--white);
+          border-radius: 10px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .form-group {
+          margin-bottom: 20px;
+      }
+
+      .form-group label {
+          display: block;
+          margin-bottom: 8px;
+          color: var(--primary-blue);
+          font-weight: bold;
+      }
+
+      .form-group input,
+      .form-group textarea {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          font-size: 1rem;
+      }
+
+      .form-group textarea {
+          height: 150px;
+          resize: vertical;
+      }
+
+      .submit-btn {
+          background: var(--primary-blue);
+          color: var(--white);
+          padding: 12px 30px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 1rem;
+          transition: background-color 0.3s ease;
+      }
+
+      .submit-btn:hover {
+          background: #001f44;
+      }
+
+      /* Academics Section Styles */
+      .academics-container {
+          padding: 40px 20px;
+          background: #f8f9fa;
+      }
+
+      .program-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 30px;
+          margin: 40px 0;
+      }
+
+      .program-card {
+          background: var(--white);
+          border-radius: 15px;
+          padding: 30px;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          position: relative;
+          overflow: hidden;
+      }
+
+      .program-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .program-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 5px;
+          background: var(--golden-yellow);
+      }
+
+      .program-card h3 {
+          color: var(--primary-blue);
+          font-size: 1.8rem;
+          margin-bottom: 15px;
+          font-weight: 700;
+      }
+
+      .program-card .grade {
+          color: var(--golden-yellow);
+          font-size: 1.2rem;
+          font-weight: 600;
+          margin-bottom: 20px;
+          display: inline-block;
+          padding: 5px 15px;
+          background: rgba(255, 193, 7, 0.1);
+          border-radius: 20px;
+      }
+
+      .program-card ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+      }
+
+      .program-card ul li {
+          padding: 10px 0;
+          padding-left: 30px;
+          position: relative;
+          border-bottom: 1px solid #eee;
+      }
+
+      .program-card ul li:last-child {
+          border-bottom: none;
+      }
+
+      .program-card ul li::before {
+          content: '\f00c';
+          font-family: 'Font Awesome 5 Free';
+          font-weight: 900;
+          position: absolute;
+          left: 0;
+          color: var(--golden-yellow);
+      }
+
+      .features-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 30px;
+          margin: 40px 0;
+      }
+
+      .feature-card {
+          background: var(--white);
+          border-radius: 15px;
+          padding: 30px;
+          text-align: center;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s ease;
+          position: relative;
+          overflow: hidden;
+      }
+
+      .feature-card:hover {
+          transform: translateY(-5px);
+      }
+
+      .feature-icon {
+          font-size: 2.5rem;
+          color: var(--golden-yellow);
+          margin-bottom: 20px;
+          height: 80px;
+          width: 80px;
+          line-height: 80px;
+          border-radius: 50%;
+          background: rgba(255, 193, 7, 0.1);
+          margin: 0 auto 20px;
+      }
+
+      .feature-card h3 {
+          color: var(--primary-blue);
+          font-size: 1.5rem;
+          margin-bottom: 15px;
+          font-weight: 600;
+      }
+
+      .feature-card p {
+          color: #666;
+          line-height: 1.6;
+      }
+
+      .achievements-section {
+          background: linear-gradient(to right, var(--primary-blue), #004d99);
+          padding: 60px 0;
+          color: var(--white);
+          margin: 40px 0;
+      }
+
+      .achievement-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 30px;
+          text-align: center;
+      }
+
+      .achievement-item {
+          padding: 20px;
+      }
+
+      .achievement-number {
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: var(--golden-yellow);
+          margin-bottom: 10px;
+      }
+
+      .achievement-text {
+          font-size: 1.1rem;
+          opacity: 0.9;
+      }
+
+      .facilities-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 30px;
+          margin: 40px 0;
+      }
+
+      .facility-card {
+          position: relative;
+          height: 200px;
+          border-radius: 15px;
+          overflow: hidden;
+          cursor: pointer;
+      }
+
+      .facility-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.3s ease;
+      }
+
+      .facility-overlay {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: linear-gradient(transparent, rgba(0, 45, 98, 0.9));
+          padding: 20px;
+          color: var(--white);
+      }
+
+      .facility-card:hover .facility-image {
+          transform: scale(1.1);
+      }
+
+      @media (max-width: 768px) {
+          .program-grid {
+              grid-template-columns: 1fr;
+          }
+
+          .features-grid {
+              grid-template-columns: 1fr;
+          }
+
+          .achievement-grid {
+              grid-template-columns: repeat(2, 1fr);
+          }
+      }
+
+      /* Animation Keyframes */
+      @keyframes fadeInUp {
+          from {
+              opacity: 0;
+              transform: translateY(30px);
+          }
+          to {
+              opacity: 1;
+              transform: translateY(0);
+          }
+      }
+
+      @keyframes slideInLeft {
+          from {
+              opacity: 0;
+              transform: translateX(-100px);
+          }
+          to {
+              opacity: 1;
+              transform: translateX(0);
+          }
+      }
+
+      @keyframes slideInRight {
+          from {
+              opacity: 0;
+              transform: translateX(100px);
+          }
+          to {
+              opacity: 1;
+              transform: translateX(0);
+          }
+      }
+
+      @keyframes scaleIn {
+          from {
+              opacity: 0;
+              transform: scale(0.8);
+          }
+          to {
+              opacity: 1;
+              transform: scale(1);
+          }
+      }
+
+      @keyframes bounce {
+          0%, 20%, 50%, 80%, 100% {
+              transform: translateY(0);
+          }
+          40% {
+              transform: translateY(-20px);
+          }
+          60% {
+              transform: translateY(-10px);
+          }
+      }
+
+      /* Animation Classes */
+      .animate {
+          opacity: 0;
+      }
+
+      .animate.fade-in-up {
+          animation: fadeInUp 0.8s ease forwards;
+      }
+
+      .animate.slide-in-left {
+          animation: slideInLeft 0.8s ease forwards;
+      }
+
+      .animate.slide-in-right {
+          animation: slideInRight 0.8s ease forwards;
+      }
+
+      .animate.scale-in {
+          animation: scaleIn 0.8s ease forwards;
+      }
+
+      .animate.bounce {
+          animation: bounce 1s ease forwards;
+          opacity: 1;
+      }
+
+      /* Add animation delays */
+      .delay-1 { animation-delay: 0.2s; }
+      .delay-2 { animation-delay: 0.4s; }
+      .delay-3 { animation-delay: 0.6s; }
+      .delay-4 { animation-delay: 0.8s; }
+
+      /* Hero Banner Animation */
+      .hero-banner .content {
+          opacity: 0;
+          animation: fadeInUp 1s ease forwards;
+      }
+
+      .hero-banner .headline {
+          opacity: 0;
+          animation: slideInLeft 1s ease 0.3s forwards;
+      }
+
+      .hero-banner .subtext {
+          opacity: 0;
+          animation: slideInRight 1s ease 0.6s forwards;
+      }
+
+      .hero-banner .cta-button {
+          opacity: 0;
+          animation: fadeInUp 1s ease 0.9s forwards;
+      }
+
+      /* Card Animations */
+      .about-card, .program-card, .feature-card, .contact-card {
+          opacity: 0;
+          transform: translateY(30px);
+          transition: all 0.5s ease;
+      }
+
+      .about-card.show, .program-card.show, .feature-card.show, .contact-card.show {
+          opacity: 1;
+          transform: translateY(0);
+      }
+
+      /* Timeline Animations */
+      .timeline-item {
+          opacity: 0;
+          transition: all 0.8s ease;
+      }
+
+      .timeline-item.left {
+          transform: translateX(-100px);
+      }
+
+      .timeline-item.right {
+          transform: translateX(100px);
+      }
+
+      .timeline-item.show {
+          opacity: 1;
+          transform: translateX(0);
+      }
+
+      /* Facilities Animation */
+      .facility-card {
+          opacity: 0;
+          transform: scale(0.8);
+          transition: all 0.5s ease;
+      }
+
+      .facility-card.show {
+          opacity: 1;
+          transform: scale(1);
+      }
+
+      /* Quick Links Animation */
+      .quick-link {
+          opacity: 0;
+          transform: translateY(20px);
+          transition: all 0.4s ease;
+      }
+
+      .quick-link.show {
+          opacity: 1;
+          transform: translateY(0);
+      }
+
+      /* Enhanced Page Transitions */
+      .section {
+          opacity: 0;
+          transform: translateY(20px);
+          transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+          display: none;
+          will-change: opacity, transform;
+      }
+
+      .section.active {
+          opacity: 1;
+          transform: translateY(0);
+          display: block;
+      }
+
+      /* Hero Section Animations */
+      .hero-banner .content {
+          opacity: 0;
+          transform: translateY(30px);
+          animation: fadeInUp 1s ease-out forwards;
+      }
+
+      .hero-banner .headline {
+          opacity: 0;
+          transform: translateX(-50px);
+          animation: slideInLeft 1s ease-out 0.3s forwards;
+      }
+
+      .hero-banner .subtext {
+          opacity: 0;
+          transform: translateX(50px);
+          animation: slideInRight 1s ease-out 0.6s forwards;
+      }
+
+      .hero-banner .cta-button {
+          opacity: 0;
+          transform: translateY(20px);
+          animation: fadeInUp 1s ease-out 0.9s forwards;
+      }
+
+      /* Enhanced Timeline Animations */
+      .timeline-item {
+          opacity: 0;
+          transition: all 0.8s ease-out;
+      }
+
+      .timeline-item.left {
+          transform: translateX(-100px);
+      }
+
+      .timeline-item.right {
+          transform: translateX(100px);
+      }
+
+      .timeline-item.show {
+          opacity: 1;
+          transform: translateX(0);
+      }
+
+      .timeline-item:nth-child(1) { transition-delay: 0.2s; }
+      .timeline-item:nth-child(2) { transition-delay: 0.4s; }
+      .timeline-item:nth-child(3) { transition-delay: 0.6s; }
+      .timeline-item:nth-child(4) { transition-delay: 0.8s; }
+
+      /* Enhanced Card Hover Effects */
+      .about-card, .program-card, .feature-card, .contact-card {
+          opacity: 0;
+          transform: translateY(30px);
+          transition: all 0.5s ease-out;
+          will-change: transform, opacity, box-shadow;
+      }
+
+      .about-card:hover, .program-card:hover, .feature-card:hover, .contact-card:hover {
+          transform: translateY(-5px) scale(1.02);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Achievement Items Animation */
+      .achievement-item {
+          opacity: 0;
+          transform: scale(0.8);
+          transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .achievement-item.show {
+          opacity: 1;
+          transform: scale(1);
+      }
+
+      .achievement-number {
+          display: inline-block;
+          animation: countUp 2s ease-out forwards;
+      }
+
+      @keyframes countUp {
+          from {
+              transform: translateY(20px);
+              opacity: 0;
+          }
+          to {
+              transform: translateY(0);
+              opacity: 1;
+          }
+      }
+
+      /* Smooth Page Transitions */
+      .page-transition {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: var(--primary-blue);
+          transform: translateY(100%);
+          z-index: 9999;
+          pointer-events: none;
+          transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .page-transition.active {
+          transform: translateY(0%);
+      }
+
+      .hero-banner .content:hover {
+          background: rgba(0, 45, 98, 0.4);
+          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--primary-blue);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out;
+      }
+
+      .loader-content {
+        text-align: center;
+      }
+
+      .loader-logo {
+        width: 200px;
+        height: auto;
+        animation: logoAnimation 2s ease-in-out;
+      }
+
+      @keyframes logoAnimation {
+        0% {
+          transform: scale(0.5);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.2);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .loader.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      @media (max-width: 768px) {
+        .loader-logo {
+          width: 150px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .loader-logo {
+          width: 120px;
+        }
+      }
+
+      .form-group textarea {
+          height: 150px;
+          resize: vertical;
+      }
+
+      .messages-container {
+          max-width: 600px;
+          margin: 0 auto 20px;
+      }
+
+      .message {
+          padding: 12px 15px;
+          margin-bottom: 15px;
+          border-radius: 5px;
+          font-weight: 500;
+      }
+
+      .message.success {
+          background-color: #d4edda;
+          color: #155724;
+          border: 1px solid #c3e6cb;
+      }
+
+      .message.error {
+          background-color: #f8d7da;
+          color: #721c24;
+          border: 1px solid #f5c6cb;
+      }
+      {% endblock extrastyles %}
+    </style>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const logoContainer = document.querySelector('.logo-container');
+        
+        // Hide loading animation when content starts loading
+        window.addEventListener('load', function() {
+          logoContainer.classList.add('hidden');
+          // Remove the container after animation completes
+          setTimeout(() => {
+            logoContainer.style.display = 'none';
+          }, 500);
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div class="navbar">
+      <button class="navbar-toggle" aria-label="Toggle navigation">
+        <span class="bar"></span>
+        <span class="bar2"></span>
+      </button>
+      {% block login %}
+      <div class="login-button">
+        {% if user == "AnonymousUser" %}
+        <a href="/login" class="login-btn">Login</a>
+        {% else %}
+        <a href="/dashboard/{{user}}" class="login-btn">Dashboard</a>
+        {% endif %}
+      </div>
+      {% endblock login %}
+    </div>
+    <!-- Side Navbar -->
+    {% block side-navbar %}
+    <div class="side-navbar">
+      <a href="#" data-target="home">Home</a>
+      <a href="#" data-target="about">About</a>
+      <a href="#" data-target="Contact-Us">Contact Us</a>
+      <a href="#" data-target="Academics">Academics</a>
+    </div>
+    {% endblock side-navbar %} {% block body %}
+    <div class="logo-container" id="logo-container">
+      <img src="static/images/logo.png" alt="Logo" id="logo" />
+    </div>
+    <section id="home" class="section">
+      <div class="hero-banner" id="hero-banner">
+        <div class="slideshow-container">
+          <img
+            src="static/images/img1.jpg"
+            class="slide active"
+            alt="School Building"
+          />
+          <img
+            src="static/images/img2.jpg"
+            class="slide"
+            alt="Students in Class"
+          />
+          <img
+            src="static/images/sports.jpg"
+            class="slide"
+            alt="School Campus"
+          />
+          <img src="static/images/Staff.jpg" class="slide" alt="School Staff" />
+          <img
+            src="static/images/School Management And Staff.jpg"
+            class="slide"
+            alt="School Management And Staff"
+          />
+          <img
+            src="static/images/img4.jpg"
+            class="slide"
+            alt="School Activities"
+          />
+        </div>
+        <div class="content">
+          <h1 class="headline">
+            Welcome to <span class="highlight">JPR Educational Institute</span>
+          </h1>
+          <p class="subtext">Where Excellence Meets Education</p>
+          <a href="#about" class="cta-button">Discover More</a>
+        </div>
+      </div>
+
+      <style>
+        .slideshow-container {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 1;
+        }
+
+        .slide {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          opacity: 0;
+          transition: opacity 1s ease-in-out;
+          object-fit: cover;
+        }
+
+        .slide.active {
+          opacity: 1;
+        }
+      </style>
+
+      <script>
+        function slideShow() {
+          const slides = document.querySelectorAll(".slide");
+          let currentSlide = 0;
+
+          setInterval(() => {
+            slides[currentSlide].classList.remove("active");
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add("active");
+          }, 5000);
+        }
+
+        document.addEventListener("DOMContentLoaded", slideShow);
+      </script>
+      <div class="section-container">
+        <div class="welcome-message">
+          <h2>Welcome to JPR Educational Institute</h2>
+          <p>
+            At JPR Educational Institute, we believe in nurturing young minds
+            through innovative education and holistic development. Our
+            commitment to excellence and values creates an environment where
+            students thrive and grow into future leaders.
+          </p>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="key-highlights">
+          <h3>Why Choose JPR?</h3>
+          <ul>
+            <li>
+              <div class="highlight-icon">💡</div>
+              <div>
+                <strong>Innovative Curriculum</strong>
+                Designed to foster critical thinking and creativity in every
+                student
+              </div>
+            </li>
+            <li>
+              <div class="highlight-icon">🌍</div>
+              <div>
+                <strong>Global Perspective</strong>
+                Empowering students with skills for success in a connected world
+              </div>
+            </li>
+            <li>
+              <div class="highlight-icon">🎓</div>
+              <div>
+                <strong>Expert Faculty</strong>
+                Experienced educators dedicated to nurturing student potential
+              </div>
+            </li>
+            <li>
+              <div class="highlight-icon">🏆</div>
+              <div>
+                <strong>Proven Excellence</strong>
+                Outstanding track record in academics and extracurriculars
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Quick Links Section -->
+        <section class="quick-links">
+          <h2 class="section-title">Quick Links</h2>
+          <div class="quick-links-grid">
+            <div class="quick-link-card">
+              <i class="fas fa-calendar"></i>
+              <h3>Academic Calendar</h3>
+              <p>Important dates and schedules</p>
+            </div>
+            <div class="quick-link-card">
+              <i class="fas fa-book"></i>
+              <h3>Student Portal</h3>
+              <p>Access your academic resources</p>
+            </div>
+            <div class="quick-link-card">
+              <i class="fas fa-user-graduate"></i>
+              <h3>Parent Corner</h3>
+              <p>Resources for parents</p>
+            </div>
+            <div class="quick-link-card">
+              <i class="fas fa-bullhorn"></i>
+              <h3>Latest Updates</h3>
+              <p>News and announcements</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- Upcoming Events Section -->
+        <section class="calendar-events">
+          <h2 class="section-title">Upcoming Events</h2>
+          <div class="calendar-grid">
+            <div class="event-card">
+              <div class="event-date">
+                <h3>JAN 25</h3>
+                <p>2025</p>
+              </div>
+              <div class="event-content">
+                <h4 class="event-title">Parent-Teacher Meeting</h4>
+                <p>Semester progress discussion</p>
+              </div>
+            </div>
+            <div class="event-card">
+              <div class="event-date">
+                <h3>FEB 10</h3>
+                <p>2025</p>
+              </div>
+              <div class="event-content">
+                <h4 class="event-title">Annual Science Exhibition</h4>
+                <p>Student innovations showcase</p>
+              </div>
+            </div>
+            <div class="event-card">
+              <div class="event-date">
+                <h3>MAR 15</h3>
+                <p>2025</p>
+              </div>
+              <div class="event-content">
+                <h4 class="event-title">Sports Meet</h4>
+                <p>Annual sports competition</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- Student Spotlight Section -->
+        <section class="spotlight-section">
+          <div class="spotlight-content">
+            <h2 class="spotlight-title">Student Achievements</h2>
+            <p>
+              Celebrating the remarkable accomplishments of our students in
+              academics, sports, and community service at JPR Educational
+              Institute.
+            </p>
+            <a href="#" class="cta-button">View Achievements</a>
+          </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- Important Resources Section -->
+        <section class="resources">
+          <h2 class="section-title">Student Resources</h2>
+          <div class="resources-grid">
+            <div class="resource-item">
+              <div class="resource-icon">📚</div>
+              <h3>Digital Library</h3>
+              <p>Access study materials</p>
+            </div>
+            <div class="resource-item">
+              <div class="resource-icon">🏆</div>
+              <h3>Sports</h3>
+              <p>Sports facilities and teams</p>
+            </div>
+            <div class="resource-item">
+              <div class="resource-icon">🎨</div>
+              <h3>Cultural Activities</h3>
+              <p>Art and cultural programs</p>
+            </div>
+            <div class="resource-item">
+              <div class="resource-icon">🚌</div>
+              <h3>Transport</h3>
+              <p>Bus routes and timings</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- Gallery Preview Section -->
+        <section class="gallery-preview-section">
+          <div class="section-header">
+            <h2 class="section-title">Our Gallery</h2>
+            <p class="section-description">
+              Glimpses of Life at JPR Educational Institute
+            </p>
+          </div>
+          <div class="gallery-preview-grid">
+            <div class="gallery-preview-item">
+              <img src="{% static 'images/img1.jpg' %}" alt="School Logo" />
+              <div class="gallery-preview-overlay">
+                <span class="gallery-preview-text">Campus Life</span>
+              </div>
+            </div>
+            <div class="gallery-preview-item">
+              <img src="{% static '/images/img2.jpg' %}" alt="School Logo" />
+              <div class="gallery-preview-overlay">
+                <span class="gallery-preview-text">Academic Excellence</span>
+              </div>
+            </div>
+            <div class="gallery-preview-item">
+              <img src="{% static '/images/img3.jpg' %}" alt="School Logo" />
+              <div class="gallery-preview-overlay">
+                <span class="gallery-preview-text">Sports Activities</span>
+              </div>
+            </div>
+            <div class="gallery-preview-item">
+              <img src="{% static '/images/img4.jpg' %}" alt="School Logo" />
+              <div class="gallery-preview-overlay">
+                <span class="gallery-preview-text">Cultural Events</span>
+              </div>
+            </div>
+          </div>
+          <div class="view-more-container">
+            <a href="/gallery/" class="view-more-btn"
+              >View More <i class="fas fa-arrow-right"></i
+            ></a>
+          </div>
+          <style>
+            .gallery-preview-section {
+              padding: 60px 20px;
+              background-color: #f8f9fa;
+            }
+
+            .section-header {
+              text-align: center;
+              margin-bottom: 40px;
+            }
+
+            .section-title {
+              color: var(--primary-blue);
+              font-size: 2.5rem;
+              font-weight: 600;
+              margin-bottom: 15px;
+              font-family: "Poppins", sans-serif;
+            }
+
+            .section-description {
+              color: #666;
+              font-size: 1.1rem;
+              max-width: 600px;
+              margin: 0 auto;
+            }
+
+            .gallery-preview-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+              gap: 25px;
+              margin: 0 auto;
+              max-width: 1200px;
+            }
+
+            .gallery-preview-item {
+              position: relative;
+              border-radius: 10px;
+              overflow: hidden;
+              box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+              transition: transform 0.3s ease;
+              aspect-ratio: 4/3;
+            }
+
+            .gallery-preview-item:hover {
+              transform: translateY(-5px);
+            }
+
+            .gallery-preview-item img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              transition: transform 0.3s ease;
+            }
+
+            .gallery-preview-item:hover img {
+              transform: scale(1.1);
+            }
+
+            .gallery-preview-overlay {
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              background: linear-gradient(
+                to top,
+                rgba(0, 45, 98, 0.9),
+                transparent
+              );
+              padding: 20px;
+              transition: opacity 0.3s ease;
+            }
+
+            .gallery-preview-text {
+              color: white;
+              font-size: 1.2rem;
+              font-weight: 500;
+              font-family: "Poppins", sans-serif;
+            }
+
+            .view-more-container {
+              text-align: center;
+              margin-top: 40px;
+            }
+
+            .view-more-btn {
+              display: inline-flex;
+              align-items: center;
+              gap: 10px;
+              background-color: var(--primary-blue);
+              color: white;
+              padding: 12px 30px;
+              border-radius: 50px;
+              text-decoration: none;
+              font-family: "Poppins", sans-serif;
+              font-weight: 500;
+              transition: all 0.3s ease;
+            }
+
+            .view-more-btn:hover {
+              background-color: #001f44;
+              transform: translateY(-2px);
+            }
+
+            .view-more-btn i {
+              transition: transform 0.3s ease;
+            }
+
+            .view-more-btn:hover i {
+              transform: translateX(5px);
+            }
+
+            @media (max-width: 768px) {
+              .section-title {
+                font-size: 2rem;
+              }
+
+              .gallery-preview-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+              }
+
+              .gallery-preview-text {
+                font-size: 1rem;
+              }
+            }
+          </style>
+        </section>
+      </div>
+    </section>
+    <section id="about" class="section">
+      <!-- About Hero Section -->
+      <div class="hero-banner" id="about-hero-banner">
+        <div class="slideshow-container">
+          <div class="slide-wrapper">
+            <img
+              src="{% static 'images/amit sir.JPG' %}"
+              class="slide active"
+              alt="Sri. Amit Kumar"
+            />
+            <div class="slide-caption active">Sri. Amit Kumar - Chairman</div>
+          </div>
+          <div class="slide-wrapper">
+            <img
+              src="{% static 'images/principal.JPG' %}"
+              class="slide"
+              alt="Ms. Srisha Balan"
+            />
+            <div class="slide-caption">Ms. Srisha Balan - Principal</div>
+          </div>
+          <div class="slide-wrapper">
+            <img
+              src="{% static 'images/entrepreneur.jpg' %}"
+              class="slide"
+              alt="B.D. Mandal"
+            />
+            <div class="slide-caption">B.D. Mandal - Entrepreneur</div>
+          </div>
+          <div class="slide-wrapper">
+            <img
+              src="{% static 'images/mentor.jpg' %}"
+              class="slide"
+              alt="Sachchidanand Mandal"
+            />
+            <div class="slide-caption">Sachchidanand Mandal - Mentor</div>
+          </div>
+        </div>
+        <div class="content">
+          <h1 class="headline">About JPR Educational Institute</h1>
+          <p class="subtext">Building Future Leaders Since 1995</p>
+        </div>
+      </div>
+
+      <style>
+        /* Update the hero banner styles */
+        .hero-banner {
+          position: relative;
+          width: 100%;
+          height: 100vh; /* Changed from 90vh to 100vh */
+          background: linear-gradient(
+            to bottom,
+            rgba(0, 45, 98, 0.3),
+            rgba(0, 45, 98, 0.4)
+          );
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          color: var(--white);
+          overflow: hidden;
+          margin: 0; /* Added margin: 0 */
+          padding: 0; /* Added padding: 0 */
+        }
+
+        /* Update the page-hero styles for About, Academics, and Contact sections */
+        .page-hero {
+          position: relative;
+          width: 100%;
+          height: 100vh; /* Changed from 60vh to 100vh */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          color: var(--white);
+          overflow: hidden;
+          margin: 0; /* Added margin: 0 */
+          padding: 0; /* Added padding: 0 */
+        }
+
+        /* Update section styles to remove any potential gaps */
+        .section {
+          margin: 0;
+          padding: 0;
+        }
+
+        /* Update slideshow-container styles */
+        .slideshow-container {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 1;
+          margin: 0;
+          padding: 0;
+        }
+
+        .slide-wrapper {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .slide {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          opacity: 0;
+          transition: opacity 1s ease-in-out;
+        }
+
+        .slide.active {
+          opacity: 1;
+        }
+
+        .slide-caption {
+          position: absolute;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(0, 45, 98, 0.8);
+          color: var(--white);
+          padding: 10px 20px;
+          border-radius: 5px;
+          font-size: 1.2rem;
+          font-weight: 500;
+          opacity: 0;
+          transition: opacity 1s ease-in-out;
+          z-index: 2;
+        }
+
+        .slide-caption.active {
+          opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+          .slide-caption {
+            font-size: 1rem;
+            padding: 8px 16px;
+            bottom: 15px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .slide-caption {
+            font-size: 0.9rem;
+            padding: 6px 12px;
+            bottom: 10px;
+          }
+        }
+
+        /* Update hero banner content styles */
+        .hero-banner .content {
+          position: relative;
+          z-index: 2;
+          font-family: "Poppins", sans-serif;
+          padding: 2.5rem;
+          max-width: 900px;
+          margin: 0 auto;
+          border-radius: 20px;
+          transition: all 0.5s ease; /* Increased duration */
+        }
+
+        /* Hide text and set initial state with smooth transitions */
+        .hero-banner .content .headline {
+          visibility: hidden;
+          opacity: 0;
+          transform: translateY(20px);
+          transition: all 0.5s ease 0.1s; /* Added delay for headline */
+        }
+
+        .hero-banner .content .subtext {
+          visibility: hidden;
+          opacity: 0;
+          transform: translateY(20px);
+          transition: all 0.5s ease 0.2s; /* Added delay for subtext */
+        }
+
+        .hero-banner .content .cta-button {
+          visibility: hidden;
+          opacity: 0;
+          transform: translateY(20px);
+          transition: all 0.5s ease 0.3s; /* Added delay for button */
+        }
+
+        /* Show glass effect and text on hover */
+        .hero-banner .content:hover {
+          background: rgba(0, 45, 98, 0.3);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+        }
+
+        /* Show text with smooth animation when hovering */
+        .hero-banner .content:hover .headline,
+        .hero-banner .content:hover .subtext,
+        .hero-banner .content:hover .cta-button {
+          visibility: visible;
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        /* Rest of the styles remain the same */
+        .headline {
+          font-size: 3.5rem;
+          font-weight: 800;
+          text-transform: uppercase;
+          color: var(--golden-yellow);
+          margin-bottom: 1.5rem;
+          line-height: 1.2;
+          text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
+        }
+
+        .subtext {
+          font-size: 1.8rem;
+          font-weight: 400;
+          font-family: "Roboto", sans-serif;
+          margin-bottom: 2.5rem;
+          line-height: 1.4;
+          color: var(--white);
+          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .cta-button {
+          font-size: 1.2rem;
+          font-weight: 600;
+          padding: 1rem 2.5rem;
+          color: var(--primary-blue);
+          background-color: var(--golden-yellow);
+          border-radius: 50px;
+          text-transform: uppercase;
+          text-decoration: none;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+          transition: transform 0.3s ease, background-color 0.3s ease,
+            box-shadow 0.3s ease;
+          animation: fadeInUp 1.8s ease-in-out;
+        }
+
+        .cta-button:hover {
+          background-color: var(--white);
+          transform: translateY(-5px);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        @keyframes fadeInDown {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @media (max-width: 768px) {
+          .hero-banner {
+            height: 80vh;
+          }
+
+          .headline {
+            font-size: 2.5rem;
+          }
+
+          .subtext {
+            font-size: 1.4rem;
+          }
+
+          .cta-button {
+            font-size: 1rem;
+            padding: 0.8rem 2rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .hero-banner {
+            height: 70vh;
+          }
+
+          .headline {
+            font-size: 2rem;
+          }
+
+          .subtext {
+            font-size: 1.2rem;
+          }
+
+          .cta-button {
+            font-size: 0.9rem;
+            padding: 0.5rem 1.2rem;
+          }
+        }
+      </style>
+
+      <script>
+        function aboutSlideShow() {
+          const slides = document.querySelectorAll("#about-hero-banner .slide");
+          let currentSlide = 0;
+
+          setInterval(() => {
+            slides[currentSlide].classList.remove("active");
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add("active");
+          }, 5000);
+        }
+
+        document.addEventListener("DOMContentLoaded", aboutSlideShow);
+      </script>
+
+      <div class="section-container">
+        <h2 class="section-title">Our Leadership Team</h2>
+
+        <!-- Director Section -->
+        <div class="leadership-section">
+          <div class="leadership-content">
+            <h3 class="leadership-title">Sri. Amit Kumar</h3>
+            <h4 class="leadership-subtitle">Founder & Director</h4>
+            <p>
+              Founder & Director of JPR Educational Institute, a pioneer and
+              entrepreneur who believes that education knows no boundaries of
+              growth. With the zeal of a visionary, he has ventured into areas
+              of incipient development and worked tirelessly to enhance the
+              infrastructure of the region and upgrade the socio-economic status
+              of the residents.
+            </p>
+            <p>
+              A B.Tech graduate with a Master's in Computer Science &
+              Engineering from Visvesvaraya Technological University, Belagavi,
+              Karnataka, he is a computer professional with several years of
+              experience in reputed IT companies as a senior software engineer.
+            </p>
+            <p>
+              His passion for teaching led him to drop offers from the largest
+              IT companies to start his own venture, what's today known as JPR
+              Educational Institute. He looks for a better world through
+              students by contributing to the field of education, particularly
+              working for underprivileged children.
+            </p>
+          </div>
+          <div class="leadership-image">
+            <img
+              src="{% static 'images/chairman1.JPG' %}"
+              alt="Sri. Amit Kumar"
+            />
+          </div>
+        </div>
+
+        <!-- Executive Director Section -->
+        <div class="leadership-section reverse">
+          <div class="leadership-image">
+            <img
+              src="{% static 'images/principle.JPG' %}"
+              alt="Ms. Srisha Balan"
+            />
+          </div>
+          <div class="leadership-content">
+            <h3 class="leadership-title">Ms. Srisha Balan</h3>
+            <h4 class="leadership-subtitle">Executive Director</h4>
+            <p>
+              Ms. Srisha Balan is a graduate with post-graduation in organic
+              chemistry from Andhra University, Andhra Pradesh. To enhance the
+              quality of education and betterment, she later pursued B.Ed from
+              Bangalore University.
+            </p>
+            <p>
+              With ten years of teaching experience, she was awarded as the best
+              teacher during the academic year 2014 from ACE Creative Learning,
+              Deeksha College, Bangalore. She believes that teaching with
+              clarity, passion, empathy, and sincere enthusiasm effectively
+              impacts learners, ultimately connecting them to their "Passion"
+              and "Lifelong learning".
+            </p>
+            <p>
+              She has trained, guided & moulded students who secured ranks in
+              various competitive entrance exams like AIEEE, IIT, and CET etc.
+              She is an excellent counsellor with a methodology to deal with
+              students to make a better future for them.
+            </p>
+          </div>
+        </div>
+
+        <!-- Entrepreneur Section -->
+        <div class="leadership-section">
+          <div class="leadership-content">
+            <h3 class="leadership-title">B.D. Mandal</h3>
+            <h4 class="leadership-subtitle">Entrepreneur</h4>
+            <p>
+              He started his journey by taking up small jobs and is now a
+              self-made man who runs a reputed company known as JPR construction
+              Pvt. Ltd., where he has provided employment for many. It was
+              because of his hard work, adaptability, and integrity that he has
+              built his own business.
+            </p>
+            <p>
+              His vision is to bring a change in society by providing quality
+              education. He believes in the quote: "Success is the result of
+              perfection, hard work, learning from failure, loyalty, and
+              persistence – Colin Powell"
+            </p>
+          </div>
+          <div class="leadership-image">
+            <img
+              src="{% static 'images/entrepreneur.jpg' %}"
+              alt="B.D. Mandal"
+            />
+          </div>
+        </div>
+
+        <!-- Mentor Section -->
+        <div class="leadership-section reverse">
+          <div class="leadership-image">
+            <img
+              src="{% static 'images/mentor.jpg' %}"
+              alt="Sachchidanand Mandal"
+            />
+          </div>
+          <div class="leadership-content">
+            <h3 class="leadership-title">Sachchidanand Mandal</h3>
+            <h4 class="leadership-subtitle">Mentor & Counsellor</h4>
+            <p>
+              Mr. S.N. Mandal is a graduate (Sec "A" & Sec "B") in Mechanical
+              Engineering from Institution of Engineers (I), and a post-graduate
+              from NIT, Jamshedpur, later pursued MBA from IGNOU. He was the
+              first person from his hometown to become an Engineer and turned
+              out to be the inspiration for many young minds.
+            </p>
+            <p>
+              With 42 years of experience, he retired as Assistant General
+              Manager from TATA Motors Ltd. in 2011. He has a strong vision &
+              clear goal for his core team with excellent mentoring.
+            </p>
+            <p>
+              Mr. Mandal is responsible for long-term perspective planning,
+              leadership training, counselling, integrating parents, children &
+              community, and implementing the institution's social
+              responsibility.
+            </p>
+          </div>
+        </div>
+
+        <style>
+          .leadership-section {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 60px;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+          }
+
+          .leadership-section:hover {
+            transform: translateY(-5px);
+          }
+
+          .leadership-section.reverse {
+            flex-direction: row-reverse;
+          }
+
+          .leadership-content {
+            flex: 1;
+          }
+
+          .leadership-image {
+            flex: 1;
+            max-width: 400px;
+          }
+
+          .leadership-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+          }
+
+          .leadership-title {
+            color: var(--primary-blue);
+            font-size: 1.8em;
+            margin-bottom: 5px;
+            font-weight: 700;
+          }
+
+          .leadership-subtitle {
+            color: var(--golden-yellow);
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            font-weight: 600;
+          }
+
+          .leadership-content p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 15px;
+          }
+
+          @media (max-width: 768px) {
+            .leadership-section {
+              flex-direction: column;
+              padding: 20px;
+            }
+
+            .leadership-section.reverse {
+              flex-direction: column;
+            }
+
+            .leadership-image {
+              max-width: 100%;
+              margin-bottom: 20px;
+            }
+          }
+        </style>
+
+        <div class="section-divider"></div>
+
+        <div class="about-grid">
+          <div class="about-card">
+            <div class="about-icon"><i class="fas fa-eye"></i></div>
+            <h3>Our Vision</h3>
+            <p>
+              To develop skill-driven students who can address global challenges
+              through innovation, design thinking, and social responsibility.
+            </p>
+          </div>
+          <div class="about-card">
+            <div class="about-icon"><i class="fas fa-bullseye"></i></div>
+            <h3>Our Mission</h3>
+            <p>
+              To prepare students for an agile economy while fostering
+              sustainable growth, integrity, and creative problem-solving
+              skills.
+            </p>
+          </div>
+          <div class="about-card">
+            <div class="about-icon"><i class="fas fa-star"></i></div>
+            <h3>Our Values</h3>
+            <p>
+              Excellence, Integrity, Innovation, and Inclusivity form the
+              cornerstone of our educational philosophy.
+            </p>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <h2 class="section-title">Our Journey</h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-year">1995</div>
+              <div class="timeline-title">Foundation</div>
+              <p>
+                Establishment of JPR Educational Institute with a commitment to
+                quality education and holistic development.
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-year">2000</div>
+              <div class="timeline-title">Curriculum Enhancement</div>
+              <p>
+                Introduction of CBSE curriculum and establishment of
+                state-of-the-art laboratories and sports facilities.
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-year">2005</div>
+              <div class="timeline-title">Infrastructure Growth</div>
+              <p>
+                Expansion of campus infrastructure with modern classrooms,
+                digital library, and advanced computer labs.
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-year">2010</div>
+              <div class="timeline-title">Global Initiatives</div>
+              <p>
+                Launch of international exchange programs and establishment of
+                career counseling center.
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-year">2015</div>
+              <div class="timeline-title">Academic Excellence</div>
+              <p>
+                Introduction of innovative STEM programs and achievement of 100%
+                board examination success rate.
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-year">2020</div>
+              <div class="timeline-title">Digital Transformation</div>
+              <p>
+                Implementation of smart classrooms and digital learning
+                platforms for enhanced education delivery.
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-year">2025</div>
+              <div class="timeline-title">Milestone Achievement</div>
+              <p>
+                Celebrating 30 years of excellence with recognition as one of
+                the leading educational institutions in the region.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Academics Section -->
+    <section id="Academics" class="section">
+      <!-- Academics Hero Section -->
+      <div class="page-hero academics-hero">
+        <div class="page-hero-content">
+          <h1 class="page-hero-title">Academic Excellence</h1>
+          <p class="page-hero-subtitle">Nurturing Minds, Shaping Futures</p>
+        </div>
+      </div>
+
+      <div class="academics-container">
+        <h2 class="section-title">Our Academic Programs</h2>
+        <div class="program-grid">
+          <div class="program-card">
+            <h3>Primary Education</h3>
+            <span class="grade">Grades 1-5</span>
+            <ul>
+              <li>Strong foundation in core subjects</li>
+              <li>Activity-based learning approach</li>
+              <li>Individual attention and care</li>
+              <li>Regular parent-teacher interaction</li>
+              <li>Emphasis on creative development</li>
+            </ul>
+          </div>
+          <div class="program-card">
+            <h3>Middle School</h3>
+            <span class="grade">Grades 6-8</span>
+            <ul>
+              <li>Advanced curriculum with practical learning</li>
+              <li>Introduction to specialized subjects</li>
+              <li>Focus on critical thinking skills</li>
+              <li>Regular assessments and feedback</li>
+              <li>Leadership development programs</li>
+            </ul>
+          </div>
+          <div class="program-card">
+            <h3>High School</h3>
+            <span class="grade">Grades 9-12</span>
+            <ul>
+              <li>Comprehensive board exam preparation</li>
+              <li>Career counseling and guidance</li>
+              <li>Advanced placement courses</li>
+              <li>College readiness programs</li>
+              <li>Specialized subject workshops</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <h2 class="section-title">Special Programs</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-microscope"></i>
+            </div>
+            <h3>STEM Education</h3>
+            <p>
+              Advanced programs in Science, Technology, Engineering, and
+              Mathematics with hands-on projects and experiments.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-language"></i>
+            </div>
+            <h3>Language Lab</h3>
+            <p>
+              Modern language laboratory for enhancing communication skills in
+              multiple languages.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-book-reader"></i>
+            </div>
+            <h3>Digital Library</h3>
+            <p>
+              Access to vast digital resources and online learning materials for
+              enhanced learning.
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-running"></i>
+            </div>
+            <h3>Sports Academy</h3>
+            <p>
+              Professional sports training facilities and expert coaches for
+              athletic development.
+            </p>
+          </div>
+        </div>
+
+        <div class="achievements-section">
+          <div class="container">
+            <div class="achievement-grid">
+              <div class="achievement-item">
+                <div class="achievement-number">98%</div>
+                <div class="achievement-text">Board Exam Success Rate</div>
+              </div>
+              <div class="achievement-item">
+                <div class="achievement-number">50+</div>
+                <div class="achievement-text">Expert Faculty Members</div>
+              </div>
+              <div class="achievement-item">
+                <div class="achievement-number">100%</div>
+                <div class="achievement-text">College Placement</div>
+              </div>
+              <div class="achievement-item">
+                <div class="achievement-number">25+</div>
+                <div class="achievement-text">Years of Excellence</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="section-title">Our Facilities</h2>
+        <div class="facilities-grid">
+          <div class="facility-card">
+            <img
+              src="https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3"
+              alt="Modern Labs"
+              class="facility-image"
+            />
+            <div class="facility-overlay">
+              <h3>Modern Laboratories</h3>
+            </div>
+          </div>
+          <div class="facility-card">
+            <img
+              src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+              alt="Library"
+              class="facility-image"
+            />
+            <div class="facility-overlay">
+              <h3>Well-Stocked Library</h3>
+            </div>
+          </div>
+          <div class="facility-card">
+            <img
+              src="https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3"
+              alt="Sports"
+              class="facility-image"
+            />
+            <div class="facility-overlay">
+              <h3>Sports Complex</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="Contact-Us" class="section">
+      <!-- Contact Hero Section -->
+      <div class="page-hero contact-hero">
+        <div class="page-hero-content">
+          <h1 class="page-hero-title">Contact Us</h1>
+          <p class="page-hero-subtitle">We'd Love to Hear from You</p>
+        </div>
+      </div>
+
+      <div class="section-container">
+        <div class="contact-info">
+          <div class="contact-card">
+            <div class="contact-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <h3>Address</h3>
+            <p>At- Boudhithaika, Khaira, Jamui,<br />Bihar-811317</p>
+          </div>
+          <div class="contact-card">
+            <div class="contact-icon"><i class="fas fa-phone"></i></div>
+            <h3>Phone</h3>
+            <p>+91-9591500542<br />+91-8147274829</p>
+          </div>
+          <div class="contact-card">
+            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+            <h3>Email</h3>
+            <p>info.jpreducation@gmail.com</p>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <h2 class="section-title">Send Us a Message</h2>
+
+        {% if messages %}
+        <div class="messages-container">
+          {% for message in messages %}
+          <div
+            class="message {% if message.tags %}{{ message.tags }}{% endif %}"
+          >
+            {{ message }}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="contact-form">
+          <form method="post" action="/">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" required />
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea
+                id="message"
+                name="message"
+                rows="5"
+                required
+              ></textarea>
+            </div>
+            <button type="submit" class="submit-btn">Send Message</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- JavaScript for Menu Toggle -->
+    {% endblock body %}
+
+    <script>
+
+      const toggleButton = document.querySelector('.navbar-toggle');
+      const sideNavbar = document.querySelector('.side-navbar');
+      const links = document.querySelectorAll('.side-navbar a');
+      const sections = document.querySelectorAll('.section');
+      const body = document.body;
+      const logoContainer = document.getElementById('logo-container');
+      const logo = document.getElementById('logo');
+
+      // Toggle Navbar and Blur Effect
+      toggleButton.addEventListener('click', () => {
+        sideNavbar.classList.toggle('active');
+
+        // Add blur effect to other elements
+        document.querySelectorAll('section, .footer').forEach(el => {
+          el.classList.toggle('blur');
+        });
+      });
+
+      // Function to show section
+      function showSection(sectionId) {
+        // Hide all sections first
+        sections.forEach(section => {
+          section.style.display = 'none';
+          section.classList.remove('active');
+        });
+
+        // Show the target section
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+          targetSection.style.display = 'block';
+          targetSection.classList.add('active');
+          // Update URL with the section ID
+          window.location.hash = sectionId;
+        }
+      }
+
+      // Handle Navbar Button Clicks
+      links.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+
+          // Get the target section ID
+          const targetId = link.dataset.target;
+
+          // Show the clicked section
+          showSection(targetId);
+
+          // Close the navbar if open
+          sideNavbar.classList.remove('active');
+
+          // Remove blur effect
+          document.querySelectorAll('section, .footer').forEach(el => {
+            el.classList.remove('blur');
+          });
+        });
+      });
+
+      // Handle URL changes and initial load
+      function handleURL() {
+        // Get the current hash without the #
+        let hash = window.location.hash.slice(1);
+
+        // If no hash, default to home
+        if (!hash) {
+          hash = 'home';
+          window.location.hash = 'home';
+        }
+
+        // Show the appropriate section
+        showSection(hash);
+      }
+
+      // Listen for hash changes
+      window.addEventListener('hashchange', handleURL);
+
+      // Handle initial page load
+      window.addEventListener('DOMContentLoaded', () => {
+        handleURL();
+      });
+
+      {% block script %}
+      // Logo Animation - Hide after 3 seconds
+      window.onload = () => {
+        setTimeout(() => {
+          document.querySelector('.logo-container').style.display = 'none';
+        }, 3000);
+      };
+      {% endblock script %}
+
+      // Animation Observer
+      function setupAnimations() {
+          const observer = new IntersectionObserver((entries) => {
+              entries.forEach(entry => {
+                  if (entry.isIntersecting) {
+                      entry.target.classList.add('show');
+
+                      // Special animation for achievement numbers
+                      if (entry.target.classList.contains('achievement-item')) {
+                          const numberElement = entry.target.querySelector('.achievement-number');
+                          if (numberElement) {
+                              const finalNumber = numberElement.textContent;
+                              animateNumber(numberElement, finalNumber);
+                          }
+                      }
+                  }
+              });
+          }, {
+              threshold: 0.2,
+              rootMargin: '0px 0px -100px 0px'
+          });
+
+          // Observe all animatable elements
+          document.querySelectorAll('.page-hero, .about-card, .program-card, .feature-card, .contact-card, .timeline-item, .facility-card, .quick-link, .achievement-item').forEach(el => {
+              observer.observe(el);
+          });
+      }
+
+      // Animate numbers function
+      function animateNumber(element, finalNumber) {
+          const duration = 2000;
+          const startNumber = 0;
+          const increment = finalNumber.includes('+') ?
+              parseInt(finalNumber) / (duration / 16) :
+              parseInt(finalNumber) / (duration / 16);
+          let currentNumber = startNumber;
+
+          const updateNumber = () => {
+              currentNumber += increment;
+              if (currentNumber <= parseInt(finalNumber)) {
+                  element.textContent = Math.floor(currentNumber) + (finalNumber.includes('+') ? '+' : '');
+                  requestAnimationFrame(updateNumber);
+              } else {
+                  element.textContent = finalNumber;
+              }
+          };
+
+          requestAnimationFrame(updateNumber);
+      }
+
+      // Enhanced section transition
+      function showSection(sectionId) {
+          // Create transition overlay if it doesn't exist
+          let transition = document.querySelector('.page-transition');
+          if (!transition) {
+              transition = document.createElement('div');
+              transition.className = 'page-transition';
+              document.body.appendChild(transition);
+          }
+
+          // Start transition
+          transition.classList.add('active');
+
+          setTimeout(() => {
+              // Hide all sections
+              sections.forEach(section => {
+                  section.style.opacity = '0';
+                  section.style.transform = 'translateY(20px)';
+                  setTimeout(() => {
+                      section.style.display = 'none';
+                      section.classList.remove('active');
+                  }, 300);
+              });
+
+              // Show new section
+              setTimeout(() => {
+                  const targetSection = document.getElementById(sectionId);
+                  if (targetSection) {
+                      targetSection.style.display = 'block';
+                      targetSection.classList.add('active');
+
+                      // Force reflow
+                      void targetSection.offsetWidth;
+
+                      // Animate in
+                      targetSection.style.opacity = '1';
+                      targetSection.style.transform = 'translateY(0)';
+
+                      // Update URL
+                      window.location.hash = sectionId;
+
+                      // Reset animations
+                      setupAnimations();
+
+                      // Smooth scroll to top
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                      // End transition
+                      transition.classList.remove('active');
+                  }
+              }, 300);
+          }, 300);
+      }
+
+      // Enhanced Animation Observer
+      function setupAnimations() {
+          const observer = new IntersectionObserver((entries) => {
+              entries.forEach(entry => {
+                  if (entry.isIntersecting) {
+                      entry.target.classList.add('show');
+                  }
+              });
+          }, {
+              threshold: 0.2,
+              rootMargin: '0px 0px -100px 0px'
+          });
+
+          // Observe all animatable elements
+          document.querySelectorAll('.page-hero, .about-card, .program-card, .feature-card, .contact-card, .timeline-item, .facility-card, .quick-link, .achievement-item').forEach(el => {
+              observer.observe(el);
+          });
+      }
+
+      // Animate numbers function
+      function animateNumber(element, finalNumber) {
+          const duration = 2000;
+          const startNumber = 0;
+          const increment = finalNumber.includes('+') ?
+              parseInt(finalNumber) / (duration / 16) :
+              parseInt(finalNumber) / (duration / 16);
+          let currentNumber = startNumber;
+
+          const updateNumber = () => {
+              currentNumber += increment;
+              if (currentNumber <= parseInt(finalNumber)) {
+                  element.textContent = Math.floor(currentNumber) + (finalNumber.includes('+') ? '+' : '');
+                  requestAnimationFrame(updateNumber);
+              } else {
+                  element.textContent = finalNumber;
+              }
+          };
+
+          requestAnimationFrame(updateNumber);
+      }
+
+      // Enhanced section transition
+      function showSection(sectionId) {
+          // Hide all sections first
+          sections.forEach(section => {
+              section.style.opacity = '0';
+              section.style.transform = 'translateY(20px)';
+              setTimeout(() => {
+                  section.style.display = 'none';
+                  section.classList.remove('active');
+              }, 300);
+          });
+
+          // After short delay, show and animate the new section
+          setTimeout(() => {
+              const targetSection = document.getElementById(sectionId);
+              if (targetSection) {
+                  targetSection.style.display = 'block';
+                  targetSection.classList.add('active');
+
+                  // Force a reflow
+                  void targetSection.offsetWidth;
+
+                  // Animate in
+                  targetSection.style.opacity = '1';
+                  targetSection.style.transform = 'translateY(0)';
+
+                  // Update URL
+                  window.location.hash = sectionId;
+
+                  // Reset and trigger animations
+                  setupAnimations();
+
+                  // Smooth scroll to top
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+          }, 300);
+      }
+
+      // Initialize animations on page load
+      window.addEventListener('DOMContentLoaded', () => {
+          handleURL();
+          setupAnimations();
+      });
+
+      // Handle URL changes
+      function handleURL() {
+          let hash = window.location.hash.slice(1);
+          if (!hash) {
+              hash = 'home';
+              window.location.hash = 'home';
+          }
+          showSection(hash);
+      }
+
+      // Listen for hash changes
+      window.addEventListener('hashchange', handleURL);
+
+      // Handle navigation clicks
+      links.forEach(link => {
+          link.addEventListener('click', (e) => {
+              e.preventDefault();
+              const targetId = link.dataset.target;
+              showSection(targetId);
+
+              // Close navbar and remove blur
+              sideNavbar.classList.remove('active');
+              document.querySelectorAll('section, .footer').forEach(el => {
+                  el.classList.remove('blur');
+              });
+          });
+      });
+    </script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Home page slideshow
+        const homeSlides = document.querySelectorAll("#hero-banner .slide");
+        let currentHomeSlide = 0;
+
+        function showHomeSlide(index) {
+          // Remove active class from all slides
+          homeSlides.forEach((slide) => {
+            slide.classList.remove("active");
+            slide.style.opacity = "0";
+          });
+
+          // Add active class to current slide
+          homeSlides[index].classList.add("active");
+          homeSlides[index].style.opacity = "1";
+        }
+
+        function nextHomeSlide() {
+          currentHomeSlide = (currentHomeSlide + 1) % homeSlides.length;
+          showHomeSlide(currentHomeSlide);
+        }
+
+        // Initial setup for home slideshow
+        showHomeSlide(0);
+
+        // Change home slide every 5 seconds
+        setInterval(nextHomeSlide, 5000);
+
+        // About page slideshow code remains unchanged
+        const slideWrappers = document.querySelectorAll(".slide-wrapper");
+        let currentSlide = 0;
+
+        function showSlide(index) {
+          slideWrappers.forEach((wrapper) => {
+            wrapper.querySelector(".slide").classList.remove("active");
+            wrapper.querySelector(".slide-caption").classList.remove("active");
+          });
+
+          slideWrappers[index].querySelector(".slide").classList.add("active");
+          slideWrappers[index]
+            .querySelector(".slide-caption")
+            .classList.add("active");
+        }
+
+        function nextSlide() {
+          currentSlide = (currentSlide + 1) % slideWrappers.length;
+          showSlide(currentSlide);
+        }
+
+        // Initial setup for about slideshow
+        showSlide(0);
+
+        // Change about slide every 5 seconds
+        setInterval(nextSlide, 5000);
+      });
+    </script>
+
+    <style>
+      .slideshow-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+
+      .slide-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+        object-fit: cover;
+      }
+
+      .slide.active {
+        opacity: 1;
+      }
+
+      .slide-caption {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 45, 98, 0.8);
+        color: var(--white);
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        font-weight: 500;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+        z-index: 2;
+      }
+
+      .slide-caption.active {
+        opacity: 1;
+      }
+    </style>
+  </body>
+</html>

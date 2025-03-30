@@ -1,0 +1,200 @@
+{% extends "admin/base_site.html" %} {% load static %} {% block extrastyle %}
+<style>
+  .student-info-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    gap: 30px;
+  }
+
+  .profile-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .student-details {
+    flex: 1;
+  }
+
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 16px;
+  }
+
+  .info-table th {
+    text-align: left;
+    padding: 12px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    width: 30%;
+  }
+
+  .info-table td {
+    padding: 12px;
+    border: 1px solid #dee2e6;
+  }
+
+  .transactions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 16px;
+  }
+
+  .transactions-table th {
+    background: #f8f9fa;
+    padding: 15px;
+    text-align: left;
+    border: 1px solid #dee2e6;
+  }
+
+  .transactions-table td {
+    padding: 15px;
+    border: 1px solid #dee2e6;
+  }
+
+  .transactions-table tr:hover {
+    background-color: #f8f9fa;
+  }
+
+  .status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    display: inline-block;
+  }
+
+  .status-success {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .status-pending {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .section-title {
+    font-size: 24px;
+    color: #2c3e50;
+    margin: 30px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+  }
+
+  .fee-due {
+    font-size: 20px;
+    color: #e74c3c;
+    font-weight: bold;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="student-info-card">
+  <div class="profile-image-container">
+    {% if user_profile.profile_image %}
+    <img
+      src="{{ user_profile.profile_image.url }}"
+      class="profile-image"
+      alt="Profile Image"
+    />
+    {% else %}
+    <img
+      src="{% static 'images/default-profile.png' %}"
+      class="profile-image"
+      alt="Default Profile"
+    />
+    {% endif %}
+  </div>
+
+  <div class="student-details">
+    <h1 style="margin: 0 0 20px">{{ user_profile.Name }}</h1>
+    <table class="info-table">
+      <tr>
+        <th>Registration Number</th>
+        <td>{{ user_profile.registration_number }}</td>
+      </tr>
+      <tr>
+        <th>Class</th>
+        <td>{{ user_profile.Class }}</td>
+      </tr>
+      <tr>
+        <th>Email</th>
+        <td>{{ user_profile.email }}</td>
+      </tr>
+      <tr>
+        <th>Phone Number</th>
+        <td>{{ user_profile.phone_number }}</td>
+      </tr>
+      <tr>
+        <th>Alternative Number</th>
+        <td>{{ user_profile.alt_number|default:"-" }}</td>
+      </tr>
+      <tr>
+        <th>Fee Due</th>
+        <td class="fee-due">₹{{ user_profile.Fee_Due }}</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<h2 class="section-title">Transaction History</h2>
+<table class="transactions-table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Transaction ID</th>
+      <th>Amount</th>
+      <th>Payment Mode</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for transaction in transactions %}
+    <tr>
+      <td>{{ transaction.date }}</td>
+      <td>{{ transaction.transaction_id|default:"-" }}</td>
+      <td>₹{{ transaction.amount }}</td>
+      <td>{{ transaction.payment_mode }}</td>
+      <td>
+        <span
+          class="status-badge {% if transaction.status %}status-success{% else %}status-pending{% endif %}"
+        >
+          {% if transaction.status %}Success{% else %}Pending{% endif %}
+        </span>
+      </td>
+      <td>
+        <a
+          href="{% url 'admin:school_transactions_change' transaction.id %}"
+          style="text-decoration: none; color: #007bff"
+        >
+          View Details
+        </a>
+        {% if transaction.status %} |
+        <a
+          href="{% url 'download_receipt' transaction.transaction_id %}"
+          style="text-decoration: none; color: #28a745"
+        >
+          Download Receipt
+        </a>
+        {% endif %}
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="6" style="text-align: center; padding: 20px">
+        No transactions found
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

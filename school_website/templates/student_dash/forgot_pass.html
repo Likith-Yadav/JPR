@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        /* Variables */
+        :root {
+            --primary-blue: #002D62;
+            --golden-yellow: #FFD700;
+            --white: #ffffff;
+            --light-gray: #f7f7f8;
+            --dark-gray: #333;
+        }
+        
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 0;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        /* Form Styles */
+        form {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+        
+        .form-group input {
+            padding: 12px;
+            font-size: 1rem;
+            border: 1px solid var(--primary-blue);
+            border-radius: 4px;
+            width: 100%;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: var(--golden-yellow);
+            outline: none;
+        }
+        
+        button {
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: bold;
+            background-color: var(--golden-yellow);
+            color: var(--primary-blue);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            width: 100%;
+            text-transform: uppercase;
+        }
+        
+        button:hover {
+            background-color: var(--primary-blue);
+            color: var(--golden-yellow);
+            transform: scale(1.05);
+        }
+        
+        .required::after {
+            content: " *";
+            color: red;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 0 10px;
+            }
+        
+            form {
+                padding: 20px 10px;
+            }
+        
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 15px;
+            }
+        
+            .form-group input {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+        .messages {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8d7da; /* Light red background for error messages */
+            color: #721c24; /* Dark red text */
+            border-radius: 5px;
+        }
+        
+        .message {
+            margin: 0;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Forgot Password</h1>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <p class="message">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <form aria-label="Login Form">
+        <div class="form-group" id="email-group">
+            <label for="email" class="required">Email:</label>
+            <input type="email" id="email" name="email" placeholder="Enter your registered Email" required aria-required="true">
+        </div>
+        <button type="button" onclick="sendOtp()" aria-label="Send OTP" id="otp_sender">Send OTP</button>
+        
+        <div class="form-group" id="otp-group-1" style="display: none;">
+            <label for="otp" class="required">OTP:</label>
+            <input type="text" id="otp" name="otp" placeholder="Enter OTP sent to your email" required aria-required="true">
+        </div>
+        
+        <div class="form-group" id="otp-group-2" style="display: none;">
+            <label for="new-password" class="required">New Password:</label>
+            <input type="password" id="new-password" name="new-password" placeholder="Enter your new password" required aria-required="true">
+        </div>
+        
+        <div class="form-group" id="otp-group-3" style="display: none;">
+            <label for="confirm-password" class="required">Confirm New Password:</label>
+            <input type="password" id="confirm-password" name="confirm-password" placeholder="Enter your new password again" required aria-required="true">
+        </div>
+        
+        <button type="button" onclick="changePassword()" aria-label="Change Password" id="otp-group-4" style="display: none;">Change Password</button>
+    </form>
+    <script>
+        function validateEmail(email) {
+            // Regex pattern for validating email format
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailPattern.test(email);
+        }
+        async function sendOtp() {
+            const email = document.getElementById('email').value;
+            if (!validateEmail(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+            document.querySelectorAll("[id^='otp-group']").forEach(ele => ele.style.display = "block");
+            document.getElementById('email-group').style.display = "none";
+            document.getElementById('otp_sender').style.display = "none";
+            const action = 'forgot'; // Set the action value
+            
+            try {
+                const response = await fetch('/otp_api/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: JSON.stringify({ email, action }),
+                });
+
+                const data = await response.json();
+                alert(response.ok ? data.message || "OTP sent successfully!" : data.error || "An error occurred.");
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to send OTP. Please try again later.');
+            }
+        }
+        async function changePassword(){
+            const email = document.getElementById('email').value;
+            const otp = document.getElementById('otp').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            if (!otp) {
+                alert('Please enter the OTP sent to your email.');
+                return;
+            }
+            if (!newPassword) {
+                alert('Please enter a new password.');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                alert('Passwords do not match. Please try again.');
+                return;
+            }
+            const action = 'change'; // Set the action value
+            
+            try {
+                const response = await fetch('/change_password/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: JSON.stringify({otp, email, newPassword, action }),
+                });
+        }
+        catch (error) {
+            console.error('Error:', error);
+            alert('Failed to change password. Please try again later.');
+        }
+    }
+    </script>
+</body>
+</html>

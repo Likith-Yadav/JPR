@@ -1,0 +1,125 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<style>
+  .fee-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+  }
+
+  .fee-container h1 {
+    font-size: 1.8rem;
+    color: #0078d4;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .fee-form {
+    margin-bottom: 20px;
+  }
+
+  .fee-form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #444;
+  }
+
+  .fee-form input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 1rem;
+  }
+
+  .fee-form button {
+    width: 100%;
+    background-color: #0078d4;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    margin: 10px -1px;
+  }
+
+  .fee-form button:hover {
+    background-color: #0056a3;
+  }
+
+  .fee-container h3 {
+    font-size: 1.4rem;
+    color: #444;
+    margin-bottom: 10px;
+  }
+
+  .user-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .user-list li {
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    color: #333;
+  }
+
+  .user-list li:last-child {
+    margin-bottom: 0;
+  }
+</style>
+  <div class="fee-container">
+  <h1>Set Fee Due for selected users</h1>
+
+  <form class="fee-form">
+    <label for="fee">Fee Due:</label>
+    <input type="number" name="fee" id="fee" required>
+    <button type="button" name="apply" onclick="updateFee()">Apply Fee</button>
+  </form>
+
+  <h3>Selected Users:</h3>
+  <ul class="user-list">
+    {% for user in users %}
+      <li>{{ user }}</li>
+    {% endfor %}
+  </ul>
+</div>
+  <script>
+    const queryset = [];
+    {% for user in users %}
+      queryset.push("{{ user | escapejs }}");
+      console.log(queryset);
+    {% endfor %}
+    async function updateFee(){
+        const fee = document.getElementById('fee').value;
+        const response = await fetch('/update_fee/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: JSON.stringify({fee, queryset}),
+        });
+        const data = await response.json();
+        alert(data.message);
+        if (response.ok) {
+          window.location.href = '/admin/';
+        }
+    }
+</script>
+
+{% endblock %}

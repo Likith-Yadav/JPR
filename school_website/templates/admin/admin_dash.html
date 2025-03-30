@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        :root {
+            --primary-blue: #002D62;
+            --golden-yellow: #FFD700;
+            --white: #ffffff;
+            --light-gray: #f7f7f8;
+            --dark-gray: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            height: 100%;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .dashboard {
+            display: flex;
+            height: calc(100% - 60px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary-blue);
+            color: var(--white);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: var(--golden-yellow);
+            color: var(--primary-blue);
+        }
+
+        section {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: var(--light-gray);
+        }
+
+        section table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        section table, section th, section td {
+            border: 1px solid var(--dark-gray);
+        }
+
+        section th, section td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        section th {
+            background-color: var(--primary-blue);
+            color: var(--white);
+        }
+
+        section .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        section button {
+            padding: 8px 16px;
+            font-size: 1rem;
+            font-weight: bold;
+            background-color: var(--golden-yellow);
+            color: var(--primary-blue);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        section button:hover {
+            background-color: var(--primary-blue);
+            color: var(--golden-yellow);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+    </header>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <a onclick="dash()">Dashboard</a>
+            <a onclick="users()">Manage Users</a>
+            <a onclick="transac()">Transactions</a>
+            <a onclick="report()">Reports</a>
+            <a onclick="settings()">Settings</a>
+        </aside>
+        <section class="ManageUsers">
+            <h2>Manage Users</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Fee Due</th>
+                        <th>Class</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>John Doe</td>
+                        <td>john@example.com</td>
+                        <td>$100</td>
+                        <td>A1</td>
+                        <td class="actions">
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Jane Smith</td>
+                        <td>jane@example.com</td>
+                        <td>$150</td>
+                        <td>B2</td>
+                        <td class="actions">
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button>Add New User</button>
+        </section>
+
+        <section class="ManageTransactions">
+            <h2>Manage Transactions</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Fee Due</th>
+                        <th>Class</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>John Doe</td>
+                        <td>john@example.com</td>
+                        <td>$100</td>
+                        <td>A1</td>
+                        <td class="actions">
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Jane Smith</td>
+                        <td>jane@example.com</td>
+                        <td>$150</td>
+                        <td>B2</td>
+                        <td class="actions">
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button>Add New User</button>
+        </section>
+        <section class="ManageSettings">
+            <h2>Manage Settings</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Fee Due</th>
+                        <th>Class</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>John Doe</td>
+                        <td>john@example.com</td>
+                        <td>$100</td>
+                        <td>A1</td>
+                        <td class="actions">
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Jane Smith</td>
+                        <td>jane@example.com</td>
+                        <td>$150</td>
+                        <td>B2</td>
+                        <td class="actions">
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button>Add New User</button>
+        </section>
+        <section class="ManageReports">
+            <h2>Manage Reports</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Fee Due</th>
+                        <th>Class</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>John Doe</td>
+                        <td>john@example.com</td>
+                        <td>$100</td>
+                        <td>A1</td>
+                        <td class="actions">
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Jane Smith</td>
+                        <td>jane@example.com</td>
+                        <td>$150</td>
+                        <td>B2</td>
+                        <td class="actions">
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button>Add New User</button>
+        </section>
+
+        <section class="ManageDashboard">
+            <h2>Manage Dashboard</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Fee Due</th>
+                        <th>Class</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>John Doe</td>
+                        <td>john@example.com</td>
+                        <td>$100</td>
+                        <td>A1</td>
+                        <td class="actions">
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Jane Smith</td>
+                        <td>jane@example.com</td>
+                        <td>$150</td>
+                        <td>B2</td>
+                        <td class="actions">
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button>Add New User</button>
+        </section>
+    </div>
+    <script>
+        document.querySelector('.ManageUsers').style.display = 'none';
+        document.querySelector('.ManageTransactions').style.display = 'none';
+        document.querySelector('.ManageSettings').style.display = 'block';
+        document.querySelector('.ManageReports').style.display = 'none';
+        document.querySelector('.ManageDashboard').style.display = 'none';
+        function dash() {
+            document.querySelector('.ManageUsers').style.display = 'none';
+            document.querySelector('.ManageTransactions').style.display = 'none';
+            document.querySelector('.ManageSettings').style.display = 'none';
+            document.querySelector('.ManageReports').style.display = 'none';
+            document.querySelector('.ManageDashboard').style.display = 'block';
+        }
+
+        function users() {
+            document.querySelector('.ManageUsers').style.display = 'block';
+            document.querySelector('.ManageTransactions').style.display = 'none';
+            document.querySelector('.ManageSettings').style.display = 'none';
+            document.querySelector('.ManageReports').style.display = 'none';
+            document.querySelector('.ManageDashboard').style.display = 'none';
+        }
+
+        function transac() {
+            document.querySelector('.ManageUsers').style.display = 'none';
+            document.querySelector('.ManageTransactions').style.display = 'block';
+            document.querySelector('.ManageSettings').style.display = 'none';
+            document.querySelector('.ManageReports').style.display = 'none';
+            document.querySelector('.ManageDashboard').style.display = 'none';
+        }
+
+        function report() {
+            document.querySelector('.ManageUsers').style.display = 'none';
+            document.querySelector('.ManageTransactions').style.display = 'none';
+            document.querySelector('.ManageSettings').style.display = 'none';
+            document.querySelector('.ManageReports').style.display = 'block';
+            document.querySelector('.ManageDashboard').style.display = 'none';
+        }
+
+        function settings() {
+            document.querySelector('.ManageUsers').style.display = 'none';
+            document.querySelector('.ManageTransactions').style.display = 'none';
+            document.querySelector('.ManageSettings').style.display = 'block';
+            document.querySelector('.ManageReports').style.display = 'none';
+            document.querySelector('.ManageDashboard').style.display = 'none';
+        }
+    </script> 
+</body>
+</html>

@@ -1,0 +1,269 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - JPR Educational Institute</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #002D62;
+            --golden-yellow: #FFD700;
+            --white: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--white);
+        }
+
+        .navbar {
+            background-color: var(--primary-blue);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+
+        .back-button {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+
+        .back-button:hover {
+            color: var(--golden-yellow);
+        }
+
+        .back-button i {
+            margin-right: 8px;
+        }
+
+        /* Hero Section Styles */
+        .page-hero {
+            position: relative;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--white);
+            margin-top: 40px;
+            background-color: var(--primary-blue);
+            overflow: hidden;
+        }
+
+        .page-hero.gallery-hero {
+            background: linear-gradient(rgba(0, 45, 98, 0.8), rgba(0, 45, 98, 0.8)), url('{% static "images/img1.JPG" %}');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .page-hero-content {
+            max-width: 800px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            font-family: 'Poppins', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .page-hero-subtitle {
+            font-size: 1.5rem;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .gallery-container {
+            padding: 50px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .gallery-description {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            background-color: var(--white);
+            aspect-ratio: 4/3;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-item-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            background: rgba(0, 45, 98, 0.9);
+            color: var(--white);
+            font-size: 1.1rem;
+            text-align: center;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .gallery-item:hover .gallery-item-caption {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .page-hero {
+                height: 300px;
+            }
+
+            .page-hero-title {
+                font-size: 2.5rem;
+            }
+
+            .page-hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+                padding: 10px;
+            }
+
+            .gallery-container {
+                padding: 30px 10px;
+            }
+
+            .navbar {
+                padding: 0.8rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Back to Home
+        </a>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="page-hero gallery-hero">
+        <div class="page-hero-content">
+            <h1 class="page-hero-title">Our Gallery</h1>
+            <p class="page-hero-subtitle">Capturing Moments of Excellence</p>
+        </div>
+    </div>
+
+    <div class="gallery-container">
+        <p class="gallery-description">Explore our vibrant school life through these captured moments. From academic achievements to cultural celebrations, each image tells a story of excellence and growth at JPR Educational Institute.</p>
+        
+        <div class="gallery-grid">
+            <div class="gallery-item">
+                <img src="{% static 'images/school.jpeg' %}" style="align-items: center; width: 100%;" alt="School Logo">
+                <div class="gallery-item-caption">School</div>
+            </div>
+            <div class="gallery-item">
+                <img src="{% static 'images/amit sir.JPG' %}" alt="Chairman">
+                <div class="gallery-item-caption">Chairman</div>
+            </div>
+            <div class="gallery-item">
+                <img src="{% static 'images/principal.JPG' %}" alt="Principal">
+                <div class="gallery-item-caption">Principal</div>
+            </div>
+            <div class="gallery-item">
+                <img src="{% static 'images/School Management and Staff.JPG' %}" alt="Management and Staff">
+                <div class="gallery-item-caption">Management and Staff</div>
+            </div>
+            <div class="gallery-item">
+                <img src="{% static 'images/Staff.JPG' %}" alt="Staff">
+                <div class="gallery-item-caption">Staff</div>
+            </div>
+            <div class="gallery-item">
+                <img src="{% static 'images/img1.JPG' %}" alt="Students">
+                <div class="gallery-item-caption">Students</div>
+            </div>
+            <div class="gallery-item">
+                <img src="{% static 'images/img2.JPG' %}" alt="Classrooms">
+                <div class="gallery-item-caption">Classrooms</div>
+            </div>
+            <div class="gallery-item">
+                <img src="{% static 'images/img3.JPG' %}" alt="Extra Curricular">
+                <div class="gallery-item-caption">Extra Curricular Activities</div>
+            </div>
+            <div class="gallery-item">
+                <img src="{% static 'images/img4.JPG' %}" alt="Trips">
+                <div class="gallery-item-caption">Trips</div>
+            </div>
+            <div class="gallery-item">
+                <img src="{% static 'images/sports.JPG' %}" alt="sports">
+                <div class="gallery-item-caption">Sports</div>
+            </div>
+            <div class="gallery-item">
+                <img src="{% static 'images/school events.JPG' %}" alt="School Events">
+                <div class="gallery-item-caption">School Events</div>
+            </div>
+            <div class="gallery-item">
+                <img src="{% static 'images/Assembly.JPG' %}" alt="Assembly">
+                <div class="gallery-item-caption">Assembly</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
