@@ -1,0 +1,23 @@
+[phases.setup]
+nixPkgs = [
+    'pango',
+    'libffi',
+    'cairo',
+    'gobject-introspection',
+    'libpng',
+    'gdk-pixbuf',
+    'freetype',
+    'fontconfig',
+    'harfbuzz',
+    'fribidi',
+    'libxml2',
+    'libxslt',
+    'libjpeg',
+    'libtiff',
+    'libwebp',
+    'zlib',
+    'brotli',
+    'woff2',
+    'libunwind',
+    'libgobject'
+] 
