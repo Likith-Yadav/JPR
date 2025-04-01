@@ -19,5 +19,5 @@ nixPkgs = [
     'brotli',
     'woff2',
     'libunwind',
-    'libgobject'
+    'glib'
 ] 
