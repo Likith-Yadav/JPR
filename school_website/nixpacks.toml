@@ -24,13 +24,20 @@ nixPkgs = [
     'libunwind',
     'glib',
     'gobject-introspection',
-    'pkg-config'
+    'pkg-config',
+    'gobject-introspection-unwrapped'
 ]
 
 [phases.install]
 cmds = [
-    'export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/share/pkgconfig',
-    'export LD_LIBRARY_PATH=/usr/lib:/usr/local/lib:/nix/store/*/lib',
-    'export GI_TYPELIB_PATH=/usr/lib/girepository-1.0:/nix/store/*/lib/girepository-1.0',
-    'export LIBRARY_PATH=/usr/lib:/usr/local/lib:/nix/store/*/lib'
+    'export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/share/pkgconfig:/nix/store/*/lib/pkgconfig',
+    'export LD_LIBRARY_PATH=/usr/lib:/usr/local/lib:/nix/store/*/lib:/nix/store/*/lib64',
+    'export GI_TYPELIB_PATH=/usr/lib/girepository-1.0:/nix/store/*/lib/girepository-1.0:/nix/store/*/lib64/girepository-1.0',
+    'export LIBRARY_PATH=/usr/lib:/usr/local/lib:/nix/store/*/lib:/nix/store/*/lib64',
+    'export C_INCLUDE_PATH=/nix/store/*/include',
+    'export CPLUS_INCLUDE_PATH=/nix/store/*/include',
+    'export LIBRARY_PATH=/nix/store/*/lib:/nix/store/*/lib64',
+    'export LD_LIBRARY_PATH=/nix/store/*/lib:/nix/store/*/lib64',
+    'export PKG_CONFIG_PATH=/nix/store/*/lib/pkgconfig',
+    'export GI_TYPELIB_PATH=/nix/store/*/lib/girepository-1.0:/nix/store/*/lib64/girepository-1.0'
 ] 
