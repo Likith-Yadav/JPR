@@ -26,7 +26,13 @@ from django.db.models import F
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 from reportlab.lib.pagesizes import letter
-from weasyprint import HTML
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
+import requests
+from io import BytesIO
 
 warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 # Create your views here.
@@ -384,7 +390,7 @@ def update_fee(request):
 
 def download_receipt(request, transaction_id):
     """
-    Generate and download the receipt as a PDF using the HTML template.
+    Generate and download the receipt as a PDF using reportlab.
     """
     # Fetch transaction and user details from the database
     transaction = get_object_or_404(Transactions, transaction_id=transaction_id)
@@ -395,35 +401,103 @@ def download_receipt(request, transaction_id):
     if transaction.status:
         hash_data = f"{transaction.transaction_id}{transaction.date}{transaction.total_amount}".encode()
         digital_signature = sha256(hash_data).hexdigest()
-    logo_url = request.build_absolute_uri(static('images/logo.png'))
-    
-    # Context for the receipt template
-    context = {
-        'name': user_profile.Name,
-        'registration_number': user_profile.registration_number,
-        'class': user_profile.Class,
-        'date': transaction.date,
-        'time': transaction.time,
-        'total_amount': transaction.total_amount,
-        'fee_due': user_profile.Fee_Due,
-        'payment_mode': transaction.payment_mode,
-        'transaction_id': transaction.transaction_id if transaction.payment_mode != "cash" else None,
-        'receiver': transaction.received_by if transaction.received_by else "Public School",
-        'digital_signature': digital_signature,
-        'status': transaction.status,
-        'logo_url': logo_url,
-        'payment_categories': transaction.categories.all(),
-    }
 
-    # Render the HTML template as a string
-    html_template = render_to_string('bill_template.html', context)
-
-    # Generate PDF using weasyprint
-    pdf_file = HTML(string=html_template).write_pdf()
-
-    # Return the PDF as a downloadable response
-    response = HttpResponse(pdf_file, content_type='application/pdf')
+    # Create the PDF
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="receipt_{transaction_id}.pdf"'
+    
+    # Create the PDF document
+    doc = SimpleDocTemplate(response, pagesize=letter)
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # Add logo
+    logo_url = request.build_absolute_uri(static('images/logo.png'))
+    try:
+        logo_response = requests.get(logo_url)
+        logo = ImageReader(BytesIO(logo_response.content))
+        elements.append(ImageReader(BytesIO(logo_response.content)))
+        elements.append(Spacer(1, 20))
+    except:
+        pass
+
+    # Add header
+    header_style = ParagraphStyle(
+        'CustomHeader',
+        parent=styles['Heading1'],
+        alignment=TA_CENTER,
+        fontSize=24,
+        spaceAfter=30
+    )
+    elements.append(Paragraph("JPR Education", header_style))
+
+    # Add receipt details
+    details_style = ParagraphStyle(
+        'Details',
+        parent=styles['Normal'],
+        fontSize=12,
+        spaceAfter=12
+    )
+
+    # Student details
+    elements.append(Paragraph(f"Name: {user_profile.Name}", details_style))
+    elements.append(Paragraph(f"Registration Number: {user_profile.registration_number}", details_style))
+    elements.append(Paragraph(f"Class: {user_profile.Class}", details_style))
+    elements.append(Spacer(1, 20))
+
+    # Transaction details
+    elements.append(Paragraph(f"Date: {transaction.date}", details_style))
+    elements.append(Paragraph(f"Time: {transaction.time}", details_style))
+    elements.append(Paragraph(f"Payment Mode: {transaction.payment_mode}", details_style))
+    if transaction.payment_mode != "cash":
+        elements.append(Paragraph(f"Transaction ID: {transaction.transaction_id}", details_style))
+    elements.append(Spacer(1, 20))
+
+    # Payment categories table
+    table_data = [['Category', 'Amount']]
+    for category in transaction.categories.all():
+        table_data.append([category.name, f"₹{category.amount}"])
+
+    table = Table(table_data, colWidths=[300, 100])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 14),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 12),
+        ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    elements.append(table)
+
+    # Total amount
+    elements.append(Spacer(1, 20))
+    elements.append(Paragraph(f"Total Amount: ₹{transaction.total_amount}", details_style))
+    elements.append(Paragraph(f"Fee Due: ₹{user_profile.Fee_Due}", details_style))
+
+    # Digital signature
+    if digital_signature:
+        elements.append(Spacer(1, 40))
+        elements.append(Paragraph("Digital Signature:", details_style))
+        elements.append(Paragraph(digital_signature, details_style))
+
+    # Status
+    elements.append(Spacer(1, 20))
+    status_style = ParagraphStyle(
+        'Status',
+        parent=styles['Normal'],
+        fontSize=12,
+        textColor=colors.green if transaction.status else colors.red
+    )
+    elements.append(Paragraph(f"Status: {'Success' if transaction.status else 'Failed'}", status_style))
+
+    # Build the PDF
+    doc.build(elements)
     
     return response
 

@@ -45,7 +45,14 @@ cmds = [
     'export GI_TYPELIB_PATH=/nix/store/*/lib/girepository-1.0:/nix/store/*/lib64/girepository-1.0:/nix/store/*/lib/gobject-introspection/girepository-1.0',
     'export PKG_CONFIG_PATH=/nix/store/*/lib/pkgconfig:/nix/store/*/lib/gobject-introspection/pkgconfig',
     'export PATH=/nix/store/*/bin:/nix/store/*/lib/gobject-introspection:$PATH',
-    'mkdir -p /usr/lib',
-    'GOBJECT_LIB=$(find /nix/store -name "libgobject-2.0.so*" -type f | head -n 1) && if [ -f "$GOBJECT_LIB" ]; then cp "$GOBJECT_LIB" /usr/lib/libgobject-2.0.so.0 && cp "$(dirname "$GOBJECT_LIB")/libglib-2.0.so"* /usr/lib/ && cp "$(dirname "$GOBJECT_LIB")/libgio-2.0.so"* /usr/lib/ && cp "$(dirname "$GOBJECT_LIB")/libgmodule-2.0.so"* /usr/lib/ && cp "$(dirname "$GOBJECT_LIB")/libgthread-2.0.so"* /usr/lib/ && cp "$(dirname "$GOBJECT_LIB")/libgirepository-1.0.so"* /usr/lib/; else echo "Error: Could not find libgobject-2.0.so" && exit 1; fi',
-    'ldconfig'
+    'GOBJECT_PATH=$(find /nix/store -name "libgobject-2.0.so*" -type f | head -n 1)',
+    'GOBJECT_DIR=$(dirname "$GOBJECT_PATH")',
+    'export LD_LIBRARY_PATH=$GOBJECT_DIR:$LD_LIBRARY_PATH',
+    'export LIBRARY_PATH=$GOBJECT_DIR:$LIBRARY_PATH',
+    'export PKG_CONFIG_PATH=$GOBJECT_DIR/pkgconfig:$PKG_CONFIG_PATH',
+    'export GI_TYPELIB_PATH=$GOBJECT_DIR/girepository-1.0:$GI_TYPELIB_PATH',
+    'export LD_LIBRARY_PATH=/nix/store/*/lib:/nix/store/*/lib64:/nix/store/*/lib/gobject-introspection:$GOBJECT_DIR',
+    'export LIBRARY_PATH=/nix/store/*/lib:/nix/store/*/lib64:/nix/store/*/lib/gobject-introspection:$GOBJECT_DIR',
+    'export PKG_CONFIG_PATH=/nix/store/*/lib/pkgconfig:/nix/store/*/lib/gobject-introspection/pkgconfig:$GOBJECT_DIR/pkgconfig',
+    'export GI_TYPELIB_PATH=/nix/store/*/lib/girepository-1.0:/nix/store/*/lib64/girepository-1.0:/nix/store/*/lib/gobject-introspection/girepository-1.0:$GOBJECT_DIR/girepository-1.0'
 ] 
