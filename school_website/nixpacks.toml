@@ -22,5 +22,14 @@ nixPkgs = [
     'brotli',
     'woff2',
     'libunwind',
-    'glib'
+    'glib',
+    'gobject-introspection',
+    'pkg-config'
+]
+
+[phases.install]
+cmds = [
+    'export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/share/pkgconfig',
+    'export LD_LIBRARY_PATH=/usr/lib:/usr/local/lib',
+    'export GI_TYPELIB_PATH=/usr/lib/girepository-1.0'
 ] 
