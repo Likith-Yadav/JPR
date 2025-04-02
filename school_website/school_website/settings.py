@@ -139,8 +139,8 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# Use a simpler static files storage that preserves filenames
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# Disable whitenoise static file compression for now
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
@@ -150,6 +150,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
 WHITENOISE_MANIFEST_STRICT = False
+WHITENOISE_INDEX_FILE = True
+WHITENOISE_ENABLE_COMPRESSION = False  # Disable compression temporarily
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
