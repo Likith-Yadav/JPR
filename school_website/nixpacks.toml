@@ -44,5 +44,13 @@ cmds = [
     'export LD_LIBRARY_PATH=/nix/store/*/lib:/nix/store/*/lib64:/nix/store/*/lib/gobject-introspection',
     'export GI_TYPELIB_PATH=/nix/store/*/lib/girepository-1.0:/nix/store/*/lib64/girepository-1.0:/nix/store/*/lib/gobject-introspection/girepository-1.0',
     'export PKG_CONFIG_PATH=/nix/store/*/lib/pkgconfig:/nix/store/*/lib/gobject-introspection/pkgconfig',
-    'export PATH=/nix/store/*/bin:/nix/store/*/lib/gobject-introspection:$PATH'
+    'export PATH=/nix/store/*/bin:/nix/store/*/lib/gobject-introspection:$PATH',
+    'mkdir -p /usr/lib',
+    'ln -sf /nix/store/*/lib/libgobject-2.0.so* /usr/lib/',
+    'ln -sf /nix/store/*/lib/libglib-2.0.so* /usr/lib/',
+    'ln -sf /nix/store/*/lib/libgio-2.0.so* /usr/lib/',
+    'ln -sf /nix/store/*/lib/libgmodule-2.0.so* /usr/lib/',
+    'ln -sf /nix/store/*/lib/libgthread-2.0.so* /usr/lib/',
+    'ln -sf /nix/store/*/lib/libgirepository-1.0.so* /usr/lib/',
+    'ldconfig'
 ] 
