@@ -46,6 +46,8 @@ cmds = [
     'export PKG_CONFIG_PATH=/nix/store/*/lib/pkgconfig:/nix/store/*/lib/gobject-introspection/pkgconfig',
     'export PATH=/nix/store/*/bin:/nix/store/*/lib/gobject-introspection:$PATH',
     'mkdir -p /usr/lib',
+    'echo "Searching for GObject library..."',
+    'find /nix/store -name "libgobject-2.0.so*" -type f',
     'GOBJECT_SO=$(find /nix/store -name "libgobject-2.0.so*" -type f | grep -v "dev" | head -n 1)',
     'if [ -z "$GOBJECT_SO" ]; then echo "Error: Could not find libgobject-2.0.so"; exit 1; fi',
     'echo "Found GObject library at: $GOBJECT_SO"',
