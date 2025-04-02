@@ -30,6 +30,7 @@ nixPkgs = [
 [phases.install]
 cmds = [
     'export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/share/pkgconfig',
-    'export LD_LIBRARY_PATH=/usr/lib:/usr/local/lib',
-    'export GI_TYPELIB_PATH=/usr/lib/girepository-1.0'
+    'export LD_LIBRARY_PATH=/usr/lib:/usr/local/lib:/nix/store/*/lib',
+    'export GI_TYPELIB_PATH=/usr/lib/girepository-1.0:/nix/store/*/lib/girepository-1.0',
+    'export LIBRARY_PATH=/usr/lib:/usr/local/lib:/nix/store/*/lib'
 ] 
