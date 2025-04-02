@@ -33,6 +33,8 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 import requests
 from io import BytesIO
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import Image
 
 warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 # Create your views here.
@@ -396,109 +398,154 @@ def download_receipt(request, transaction_id):
     transaction = get_object_or_404(Transactions, transaction_id=transaction_id)
     user_profile = get_object_or_404(UserProfile, user=transaction.user)
 
-    # Generate Digital Signature if the payment is successful
-    digital_signature = None
-    if transaction.status:
-        hash_data = f"{transaction.transaction_id}{transaction.date}{transaction.total_amount}".encode()
-        digital_signature = sha256(hash_data).hexdigest()
-
     # Create the PDF
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="receipt_{transaction_id}.pdf"'
     
-    # Create the PDF document
-    doc = SimpleDocTemplate(response, pagesize=letter)
+    # Create the PDF document with smaller margins
+    doc = SimpleDocTemplate(
+        response,
+        pagesize=letter,
+        rightMargin=50,
+        leftMargin=50,
+        topMargin=50,
+        bottomMargin=50
+    )
     styles = getSampleStyleSheet()
     elements = []
 
-    # Add logo
+    # Add logo and school name in a table
     logo_url = request.build_absolute_uri(static('images/logo.png'))
+    header_data = [[]]
     try:
         logo_response = requests.get(logo_url)
         logo = ImageReader(BytesIO(logo_response.content))
-        elements.append(ImageReader(BytesIO(logo_response.content)))
-        elements.append(Spacer(1, 20))
+        header_data[0].append(Image(BytesIO(logo_response.content), width=1*inch, height=1*inch))
     except:
-        pass
+        header_data[0].append('')
 
-    # Add header
-    header_style = ParagraphStyle(
-        'CustomHeader',
+    # School name and tagline
+    school_style = ParagraphStyle(
+        'SchoolName',
         parent=styles['Heading1'],
-        alignment=TA_CENTER,
-        fontSize=24,
-        spaceAfter=30
+        fontSize=16,
+        textColor=colors.HexColor('#8B4513'),  # Brown color for school name
+        spaceAfter=0,
+        alignment=TA_LEFT
     )
-    elements.append(Paragraph("JPR Education", header_style))
-
-    # Add receipt details
-    details_style = ParagraphStyle(
-        'Details',
+    tagline_style = ParagraphStyle(
+        'Tagline',
         parent=styles['Normal'],
-        fontSize=12,
-        spaceAfter=12
+        fontSize=10,
+        textColor=colors.gray,
+        spaceBefore=0,
+        alignment=TA_LEFT
     )
-
-    # Student details
-    elements.append(Paragraph(f"Name: {user_profile.Name}", details_style))
-    elements.append(Paragraph(f"Registration Number: {user_profile.registration_number}", details_style))
-    elements.append(Paragraph(f"Class: {user_profile.Class}", details_style))
+    school_info = []
+    school_info.append(Paragraph("JPR Public School", school_style))
+    school_info.append(Paragraph("Educating for a Brighter Future", tagline_style))
+    header_data[0].append(school_info)
+    
+    header = Table(header_data, colWidths=[1.2*inch, 4*inch])
+    header.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+    elements.append(header)
     elements.append(Spacer(1, 20))
 
-    # Transaction details
-    elements.append(Paragraph(f"Date: {transaction.date}", details_style))
-    elements.append(Paragraph(f"Time: {transaction.time}", details_style))
-    elements.append(Paragraph(f"Payment Mode: {transaction.payment_mode}", details_style))
-    if transaction.payment_mode != "cash":
-        elements.append(Paragraph(f"Transaction ID: {transaction.transaction_id}", details_style))
+    # Transaction Receipt Header
+    receipt_header = ParagraphStyle(
+        'ReceiptHeader',
+        parent=styles['Heading2'],
+        fontSize=14,
+        alignment=TA_CENTER,
+        spaceAfter=20
+    )
+    elements.append(Paragraph("Transaction Receipt", receipt_header))
+
+    # Create tables for student and transaction details
+    detail_style = TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.white),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('TOPPADDING', (0, 0), (-1, -1), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey),
+    ])
+
+    # Student Details
+    student_data = [
+        ['Student Name', user_profile.Name],
+        ['Registration Number', user_profile.registration_number],
+        ['Class', user_profile.Class],
+        ['Date', transaction.date.strftime('%d %b %Y %H:%M')],
+        ['Payment Mode', transaction.payment_mode],
+        ['Transaction ID', transaction.transaction_id],
+        ['Received By', transaction.received_by if transaction.received_by else '']
+    ]
+    
+    student_table = Table(student_data, colWidths=[200, 300])
+    student_table.setStyle(detail_style)
+    elements.append(student_table)
     elements.append(Spacer(1, 20))
 
-    # Payment categories table
-    table_data = [['Category', 'Amount']]
+    # Payment Details Header
+    elements.append(Paragraph("Payment Details", receipt_header))
+
+    # Payment Categories Table
+    payment_data = [['Category', 'Amount', 'Description']]
     for category in transaction.categories.all():
-        table_data.append([category.get_category_display(), f"₹{category.amount}"])
+        payment_data.append([
+            category.get_category_display(),
+            f"₹{category.amount}",
+            category.description if category.description else ''
+        ])
+    
+    # Add total amount and fee due
+    payment_data.append(['Total Amount', f"₹{transaction.total_amount}", ''])
+    payment_data.append(['Fee Due', f"₹{user_profile.Fee_Due}", ''])
 
-    table = Table(table_data, colWidths=[300, 100])
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+    payment_table = Table(payment_data, colWidths=[150, 150, 200])
+    payment_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 14),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
         ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 12),
-        ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ('FONTSIZE', (0, 1), (-1, -1), 10),
+        ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey)
     ]))
-    elements.append(table)
+    elements.append(payment_table)
 
-    # Total amount
-    elements.append(Spacer(1, 20))
-    elements.append(Paragraph(f"Total Amount: ₹{transaction.total_amount}", details_style))
-    elements.append(Paragraph(f"Fee Due: ₹{user_profile.Fee_Due}", details_style))
-
-    # Digital signature
-    if digital_signature:
-        elements.append(Spacer(1, 40))
-        elements.append(Paragraph("Digital Signature:", details_style))
-        elements.append(Paragraph(digital_signature, details_style))
-
-    # Status
-    elements.append(Spacer(1, 20))
-    status_style = ParagraphStyle(
-        'Status',
+    # Digital signature and footer
+    elements.append(Spacer(1, 30))
+    footer_style = ParagraphStyle(
+        'Footer',
         parent=styles['Normal'],
-        fontSize=12,
-        textColor=colors.green if transaction.status else colors.red
+        fontSize=10,
+        textColor=colors.gray,
+        alignment=TA_CENTER,
+        spaceBefore=0
     )
-    elements.append(Paragraph(f"Status: {'Success' if transaction.status else 'Failed'}", status_style))
+    if transaction.status:
+        elements.append(Paragraph("Digitally Signed by Public School", footer_style))
+        hash_data = f"{transaction.transaction_id}{transaction.date}{transaction.total_amount}".encode()
+        digital_signature = sha256(hash_data).hexdigest()
+        elements.append(Paragraph(digital_signature, footer_style))
+    
+    elements.append(Spacer(1, 20))
+    elements.append(Paragraph("Thank you for your payment!", footer_style))
+    elements.append(Paragraph("For queries, contact support@publicschool.com", footer_style))
 
     # Build the PDF
     doc.build(elements)
-    
     return response
 
 def gallery(request):
