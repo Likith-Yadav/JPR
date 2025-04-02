@@ -1,1 +1,1 @@
-web: export PYTHONPATH=/app && export LD_LIBRARY_PATH=/app/lib && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn school_website.wsgi:application 
+web: source /opt/venv/bin/activate && pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn school_website.wsgi:application 
