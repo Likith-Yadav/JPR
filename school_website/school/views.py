@@ -456,7 +456,7 @@ def download_receipt(request, transaction_id):
     # Payment categories table
     table_data = [['Category', 'Amount']]
     for category in transaction.categories.all():
-        table_data.append([category.name, f"₹{category.amount}"])
+        table_data.append([category.get_category_display(), f"₹{category.amount}"])
 
     table = Table(table_data, colWidths=[300, 100])
     table.setStyle(TableStyle([
