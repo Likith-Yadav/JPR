@@ -7,4 +7,5 @@ django-grappelli>=3.0.0
 cashfree-pg>=2.0.0
 reportlab>=4.0.0
 weasyprint>=60.1
+requests>=2.31.0
 gunicorn>=21.2.0 
