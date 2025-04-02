@@ -414,44 +414,16 @@ def download_receipt(request, transaction_id):
     styles = getSampleStyleSheet()
     elements = []
 
-    # Add logo and school name in a table
+    # Add logo centered at the top
     logo_url = request.build_absolute_uri(static('images/logo.png'))
-    header_data = [[]]
     try:
         logo_response = requests.get(logo_url)
-        logo = ImageReader(BytesIO(logo_response.content))
-        header_data[0].append(Image(BytesIO(logo_response.content), width=1*inch, height=1*inch))
+        logo = Image(BytesIO(logo_response.content), width=2*inch, height=2*inch)
+        logo.hAlign = 'CENTER'
+        elements.append(logo)
     except:
-        header_data[0].append('')
+        pass
 
-    # School name and tagline
-    school_style = ParagraphStyle(
-        'SchoolName',
-        parent=styles['Heading1'],
-        fontSize=16,
-        textColor=colors.HexColor('#8B4513'),  # Brown color for school name
-        spaceAfter=0,
-        alignment=TA_LEFT
-    )
-    tagline_style = ParagraphStyle(
-        'Tagline',
-        parent=styles['Normal'],
-        fontSize=10,
-        textColor=colors.gray,
-        spaceBefore=0,
-        alignment=TA_LEFT
-    )
-    school_info = []
-    school_info.append(Paragraph("JPR Public School", school_style))
-    school_info.append(Paragraph("Educating for a Brighter Future", tagline_style))
-    header_data[0].append(school_info)
-    
-    header = Table(header_data, colWidths=[1.2*inch, 4*inch])
-    header.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-    ]))
-    elements.append(header)
     elements.append(Spacer(1, 20))
 
     # Transaction Receipt Header
@@ -466,10 +438,11 @@ def download_receipt(request, transaction_id):
 
     # Create tables for student and transaction details
     detail_style = TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.white),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),  # Make headers bold
+        ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
         ('FONTSIZE', (0, 0), (-1, -1), 10),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
         ('TOPPADDING', (0, 0), (-1, -1), 12),
@@ -504,22 +477,21 @@ def download_receipt(request, transaction_id):
             category.description if category.description else ''
         ])
     
-    # Add total amount and fee due
+    # Add total amount and fee due with bold amounts
     payment_data.append(['Total Amount', f"₹{transaction.total_amount}", ''])
     payment_data.append(['Fee Due', f"₹{user_profile.Fee_Due}", ''])
 
     payment_table = Table(payment_data, colWidths=[150, 150, 200])
     payment_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Make header row bold
+        ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
+        ('FONTNAME', (-2, -2), (-2, -1), 'Helvetica-Bold'),  # Make amount values bold
         ('FONTSIZE', (0, 0), (-1, 0), 12),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
         ('FONTSIZE', (0, 1), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey)
     ]))
     elements.append(payment_table)
