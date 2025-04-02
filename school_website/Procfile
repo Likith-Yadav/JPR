@@ -1,1 +1,1 @@
-web: source /opt/venv/bin/activate && pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn school_website.wsgi:application 
+web: python -m venv /opt/venv && source /opt/venv/bin/activate && pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn school_website.wsgi:application 
