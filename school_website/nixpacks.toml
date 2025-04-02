@@ -1,58 +1,8 @@
 [phases.setup]
-nixPkgs = [
-    'python311',
-    'python311Packages.pip',
-    'python311Packages.virtualenv',
-    'pango',
-    'libffi',
-    'cairo',
-    'gobject-introspection',
-    'libpng',
-    'gdk-pixbuf',
-    'freetype',
-    'fontconfig',
-    'harfbuzz',
-    'fribidi',
-    'libxml2',
-    'libxslt',
-    'libjpeg',
-    'libtiff',
-    'libwebp',
-    'zlib',
-    'brotli',
-    'woff2',
-    'libunwind',
-    'glib',
-    'gobject-introspection',
-    'pkg-config',
-    'gobject-introspection-unwrapped',
-    'gobject-introspection-unwrapped.dev'
-]
+nixPkgs = ['python311', 'postgresql', 'gcc']
 
 [phases.install]
-cmds = [
-    'export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/share/pkgconfig:/nix/store/*/lib/pkgconfig',
-    'export LD_LIBRARY_PATH=/usr/lib:/usr/local/lib:/nix/store/*/lib:/nix/store/*/lib64',
-    'export GI_TYPELIB_PATH=/usr/lib/girepository-1.0:/nix/store/*/lib/girepository-1.0:/nix/store/*/lib64/girepository-1.0',
-    'export LIBRARY_PATH=/usr/lib:/usr/local/lib:/nix/store/*/lib:/nix/store/*/lib64',
-    'export C_INCLUDE_PATH=/nix/store/*/include',
-    'export CPLUS_INCLUDE_PATH=/nix/store/*/include',
-    'export LIBRARY_PATH=/nix/store/*/lib:/nix/store/*/lib64',
-    'export LD_LIBRARY_PATH=/nix/store/*/lib:/nix/store/*/lib64',
-    'export PKG_CONFIG_PATH=/nix/store/*/lib/pkgconfig',
-    'export GI_TYPELIB_PATH=/nix/store/*/lib/girepository-1.0:/nix/store/*/lib64/girepository-1.0',
-    'export LD_LIBRARY_PATH=/nix/store/*/lib:/nix/store/*/lib64:/nix/store/*/lib/gobject-introspection',
-    'export GI_TYPELIB_PATH=/nix/store/*/lib/girepository-1.0:/nix/store/*/lib64/girepository-1.0:/nix/store/*/lib/gobject-introspection/girepository-1.0',
-    'export PKG_CONFIG_PATH=/nix/store/*/lib/pkgconfig:/nix/store/*/lib/gobject-introspection/pkgconfig',
-    'export PATH=/nix/store/*/bin:/nix/store/*/lib/gobject-introspection:$PATH',
-    'GOBJECT_PATH=$(find /nix/store -name "libgobject-2.0.so*" -type f | head -n 1)',
-    'GOBJECT_DIR=$(dirname "$GOBJECT_PATH")',
-    'export LD_LIBRARY_PATH=$GOBJECT_DIR:$LD_LIBRARY_PATH',
-    'export LIBRARY_PATH=$GOBJECT_DIR:$LIBRARY_PATH',
-    'export PKG_CONFIG_PATH=$GOBJECT_DIR/pkgconfig:$PKG_CONFIG_PATH',
-    'export GI_TYPELIB_PATH=$GOBJECT_DIR/girepository-1.0:$GI_TYPELIB_PATH',
-    'export LD_LIBRARY_PATH=/nix/store/*/lib:/nix/store/*/lib64:/nix/store/*/lib/gobject-introspection:$GOBJECT_DIR',
-    'export LIBRARY_PATH=/nix/store/*/lib:/nix/store/*/lib64:/nix/store/*/lib/gobject-introspection:$GOBJECT_DIR',
-    'export PKG_CONFIG_PATH=/nix/store/*/lib/pkgconfig:/nix/store/*/lib/gobject-introspection/pkgconfig:$GOBJECT_DIR/pkgconfig',
-    'export GI_TYPELIB_PATH=/nix/store/*/lib/girepository-1.0:/nix/store/*/lib64/girepository-1.0:/nix/store/*/lib/gobject-introspection/girepository-1.0:$GOBJECT_DIR/girepository-1.0'
-] 
+cmds = ['python -m venv /opt/venv && . /opt/venv/bin/activate && pip install -r requirements.txt']
+
+[start]
+cmd = 'source /opt/venv/bin/activate && gunicorn school_website.wsgi:application --bind 0.0.0.0:$PORT' 
