@@ -1,0 +1,259 @@
+/* Responsive Design for All Devices */
+
+/* Base Mobile First Approach */
+:root {
+    --primary-blue: #002D62;
+    --golden-yellow: rgba(223, 223, 69, 0.94);
+    --white: #ffffff;
+}
+
+/* General Responsive Rules */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Mobile First Navigation */
+.side-navbar {
+    width: 100%;
+    max-width: 280px;
+}
+
+.navbar-toggle {
+    display: block;
+}
+
+/* Responsive Typography */
+html {
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    html {
+        font-size: 14px;
+    }
+}
+
+/* Small Mobile Devices (320px and up) */
+@media screen and (min-width: 320px) {
+    .container {
+        width: 100%;
+        padding: 0 15px;
+    }
+    
+    /* Navigation Adjustments */
+    .side-navbar {
+        width: 250px;
+    }
+    
+    /* Header Adjustments */
+    .header-content h1 {
+        font-size: 1.8rem;
+    }
+    
+    /* Section Padding */
+    section {
+        padding: 40px 0;
+    }
+    
+    /* Form Elements */
+    input, textarea, select {
+        width: 100%;
+        margin: 10px 0;
+    }
+    
+    /* Buttons */
+    .btn {
+        width: 100%;
+        margin: 10px 0;
+    }
+}
+
+/* Medium Mobile Devices (375px and up) */
+@media screen and (min-width: 375px) {
+    .header-content h1 {
+        font-size: 2rem;
+    }
+}
+
+/* Large Mobile Devices (425px and up) */
+@media screen and (min-width: 425px) {
+    .container {
+        padding: 0 20px;
+    }
+}
+
+/* Tablet Devices (768px and up) */
+@media screen and (min-width: 768px) {
+    .container {
+        padding: 0 30px;
+    }
+    
+    /* Grid System */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    /* Navigation */
+    .side-navbar {
+        width: 280px;
+    }
+    
+    /* Buttons */
+    .btn {
+        width: auto;
+    }
+    
+    /* Form Elements */
+    .form-group {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+/* Laptop Devices (1024px and up) */
+@media screen and (min-width: 1024px) {
+    .container {
+        max-width: 960px;
+        margin: 0 auto;
+    }
+    
+    .grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    /* Header */
+    .header-content h1 {
+        font-size: 2.5rem;
+    }
+}
+
+/* Desktop Devices (1440px and up) */
+@media screen and (min-width: 1440px) {
+    .container {
+        max-width: 1320px;
+    }
+    
+    .grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Specific Component Responsiveness */
+
+/* Cards */
+.card {
+    width: 100%;
+    margin: 10px 0;
+}
+
+/* Tables */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Images */
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Modals */
+.modal {
+    padding: 20px;
+}
+
+@media screen and (min-width: 768px) {
+    .modal {
+        padding: 40px;
+    }
+}
+
+/* Forms */
+.form-control {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+}
+
+/* Utility Classes */
+.hide-on-mobile {
+    display: none;
+}
+
+@media screen and (min-width: 768px) {
+    .hide-on-mobile {
+        display: block;
+    }
+}
+
+.show-on-mobile {
+    display: block;
+}
+
+@media screen and (min-width: 768px) {
+    .show-on-mobile {
+        display: none;
+    }
+}
+
+/* Loading Animation */
+.loading-animation {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Flex Utilities */
+.flex-container {
+    display: flex;
+    flex-direction: column;
+}
+
+@media screen and (min-width: 768px) {
+    .flex-container {
+        flex-direction: row;
+    }
+}
+
+/* Spacing Utilities */
+.m-auto {
+    margin: auto;
+}
+
+.p-responsive {
+    padding: 15px;
+}
+
+@media screen and (min-width: 768px) {
+    .p-responsive {
+        padding: 30px;
+    }
+}
+
+/* Text Alignment */
+.text-center-mobile {
+    text-align: center;
+}
+
+@media screen and (min-width: 768px) {
+    .text-center-mobile {
+        text-align: left;
+    }
+} 
