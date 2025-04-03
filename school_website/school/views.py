@@ -403,16 +403,30 @@ def download_receipt(request, transaction_id):
     # Create the PDF
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="Receipt_{transaction_id}.pdf"'
+    response['X-Frame-Options'] = 'SAMEORIGIN'
+    response['Content-Type'] = 'application/pdf'
+    
+    # Add title metadata
+    from reportlab.pdfgen import canvas
+    from io import BytesIO
+    
+    # Create a PDF buffer
+    buffer = BytesIO()
     
     # Create the PDF document with adjusted margins for border
     doc = SimpleDocTemplate(
-        response,
+        buffer,
         pagesize=letter,
         rightMargin=40,
         leftMargin=40,
         topMargin=40,
-        bottomMargin=40
+        bottomMargin=40,
+        title=f"Receipt - {user_profile.Name}",
+        author="JPR Public School",
+        subject=f"Fee Receipt - {transaction_id}",
+        creator="JPR Public School"
     )
+    
     styles = getSampleStyleSheet()
     elements = []
 
@@ -570,6 +584,12 @@ def download_receipt(request, transaction_id):
 
     # Build the PDF
     doc.build(elements)
+    
+    # Get the value of the BytesIO buffer and write it to the response
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+    
     return response
 
 def gallery(request):
