@@ -408,21 +408,25 @@ def download_receipt(request, transaction_id):
     doc = SimpleDocTemplate(
         response,
         pagesize=letter,
-        rightMargin=50,
-        leftMargin=50,
-        topMargin=50,
-        bottomMargin=50
+        rightMargin=60,
+        leftMargin=60,
+        topMargin=60,
+        bottomMargin=60
     )
     styles = getSampleStyleSheet()
     elements = []
 
     # Create a frame with rounded corners
     frame_data = [['']]
-    main_table = Table(frame_data, colWidths=[450])
+    main_table = Table(frame_data, colWidths=[475])
     main_table.setStyle(TableStyle([
-        ('ROUNDEDCORNERS', (0, 0), (-1, -1), 10),
-        ('BOX', (0, 0), (-1, -1), 1, colors.black),
+        ('ROUNDEDCORNERS', (0, 0), (-1, -1), 15),
+        ('BOX', (0, 0), (-1, -1), 1.5, colors.black),
         ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+        ('LEFTPADDING', (0, 0), (-1, -1), 20),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 20),
+        ('TOPPADDING', (0, 0), (-1, -1), 20),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 20),
     ]))
 
     # Content elements list
@@ -434,40 +438,23 @@ def download_receipt(request, transaction_id):
         logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
         if os.path.exists(logo_path):
             # Increased size for better visibility
-            logo = Image(logo_path, width=4*inch, height=1.2*inch)
+            logo = Image(logo_path, width=5*inch, height=1.5*inch)
             logo.hAlign = 'CENTER'
             content.append(logo)
-            content.append(Spacer(1, 10))
+            content.append(Spacer(1, 20))
     except Exception as e:
         print(f"Error loading logo: {e}")
         pass
 
-    # Add school name
-    school_name = ParagraphStyle(
-        'SchoolName',
-        parent=styles['Heading1'],
-        fontSize=16,
-        alignment=TA_CENTER,
-        spaceAfter=5
-    )
-    content.append(Paragraph("JPR Public School", school_name))
-    content.append(Paragraph("Educating for a Brighter Future", ParagraphStyle(
-        'Tagline',
-        parent=styles['Normal'],
-        fontSize=10,
-        alignment=TA_CENTER,
-        spaceAfter=15
-    )))
-
     # Add horizontal line
-    line = Table([['']], colWidths=[450])
+    line = Table([['']], colWidths=[435])
     line.setStyle(TableStyle([
         ('LINEABOVE', (0, 0), (-1, 0), 1, colors.black),
     ]))
     content.append(line)
-    content.append(Spacer(1, 10))
+    content.append(Spacer(1, 15))
 
-    # Rest of your existing code for receipt content
+    # Transaction Receipt Header
     receipt_header = ParagraphStyle(
         'ReceiptHeader',
         parent=styles['Heading2'],
@@ -501,14 +488,14 @@ def download_receipt(request, transaction_id):
         ['Received By', transaction.received_by if transaction.received_by else '']
     ]
     
-    student_table = Table(student_data, colWidths=[150, 300])
+    student_table = Table(student_data, colWidths=[140, 295])
     student_table.setStyle(detail_style)
     content.append(student_table)
-    content.append(Spacer(1, 10))
+    content.append(Spacer(1, 15))
 
     # Payment Details
     content.append(Paragraph("Payment Details", receipt_header))
-    content.append(Spacer(1, 5))
+    content.append(Spacer(1, 10))
 
     payment_data = [['Category', 'Amount', 'Description']]
     for category in transaction.categories.all():
@@ -521,7 +508,7 @@ def download_receipt(request, transaction_id):
     payment_data.append(['Total Amount', "Rs. " + str(transaction.total_amount), ''])
     payment_data.append(['Fee Due', "Rs. " + str(user_profile.Fee_Due), ''])
 
-    payment_table = Table(payment_data, colWidths=[150, 150, 150])
+    payment_table = Table(payment_data, colWidths=[145, 145, 145])
     payment_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.white),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
@@ -538,7 +525,7 @@ def download_receipt(request, transaction_id):
     content.append(payment_table)
 
     # Footer
-    content.append(Spacer(1, 15))
+    content.append(Spacer(1, 20))
     footer_style = ParagraphStyle(
         'Footer',
         parent=styles['Normal'],
