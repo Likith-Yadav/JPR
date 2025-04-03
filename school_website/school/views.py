@@ -408,46 +408,51 @@ def download_receipt(request, transaction_id):
     doc = SimpleDocTemplate(
         response,
         pagesize=letter,
-        rightMargin=60,
-        leftMargin=60,
-        topMargin=60,
-        bottomMargin=60
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=40,
+        bottomMargin=40
     )
     styles = getSampleStyleSheet()
     elements = []
 
+    # Calculate available width
+    available_width = letter[0] - (doc.rightMargin + doc.leftMargin)
+    
     # Create a frame with rounded corners
     frame_data = [['']]
-    main_table = Table(frame_data, colWidths=[475])
+    main_table = Table(frame_data, colWidths=[available_width - 20])  # -20 for padding
     main_table.setStyle(TableStyle([
         ('ROUNDEDCORNERS', (0, 0), (-1, -1), 15),
         ('BOX', (0, 0), (-1, -1), 1.5, colors.black),
         ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-        ('LEFTPADDING', (0, 0), (-1, -1), 20),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 20),
-        ('TOPPADDING', (0, 0), (-1, -1), 20),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 20),
+        ('LEFTPADDING', (0, 0), (-1, -1), 15),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 15),
+        ('TOPPADDING', (0, 0), (-1, -1), 15),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 15),
     ]))
 
     # Content elements list
     content = []
 
-    # Add logo centered at the top with larger dimensions
+    # Add logo centered at the top with adjusted dimensions
     try:
         # Get the absolute path to the logo file
         logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
         if os.path.exists(logo_path):
-            # Increased size for better visibility
-            logo = Image(logo_path, width=5*inch, height=1.5*inch)
+            # Adjusted size to fit the page
+            logo_width = 3.5 * inch  # Reduced width
+            logo_height = 1.2 * inch  # Reduced height
+            logo = Image(logo_path, width=logo_width, height=logo_height)
             logo.hAlign = 'CENTER'
             content.append(logo)
-            content.append(Spacer(1, 20))
+            content.append(Spacer(1, 15))
     except Exception as e:
         print(f"Error loading logo: {e}")
         pass
 
     # Add horizontal line
-    line = Table([['']], colWidths=[435])
+    line = Table([['']], colWidths=[available_width - 50])  # Adjusted width
     line.setStyle(TableStyle([
         ('LINEABOVE', (0, 0), (-1, 0), 1, colors.black),
     ]))
@@ -464,6 +469,10 @@ def download_receipt(request, transaction_id):
     )
     content.append(Paragraph("Transaction Receipt", receipt_header))
     content.append(Spacer(1, 10))
+
+    # Calculate table widths based on available space
+    label_width = available_width * 0.3
+    value_width = available_width * 0.7 - 50  # -50 for padding and margins
 
     # Student Details
     detail_style = TableStyle([
@@ -488,7 +497,7 @@ def download_receipt(request, transaction_id):
         ['Received By', transaction.received_by if transaction.received_by else '']
     ]
     
-    student_table = Table(student_data, colWidths=[140, 295])
+    student_table = Table(student_data, colWidths=[label_width, value_width])
     student_table.setStyle(detail_style)
     content.append(student_table)
     content.append(Spacer(1, 15))
@@ -496,6 +505,9 @@ def download_receipt(request, transaction_id):
     # Payment Details
     content.append(Paragraph("Payment Details", receipt_header))
     content.append(Spacer(1, 10))
+
+    # Calculate payment table column widths
+    col_width = (available_width - 80) / 3  # -80 for padding and margins
 
     payment_data = [['Category', 'Amount', 'Description']]
     for category in transaction.categories.all():
@@ -508,7 +520,7 @@ def download_receipt(request, transaction_id):
     payment_data.append(['Total Amount', "Rs. " + str(transaction.total_amount), ''])
     payment_data.append(['Fee Due', "Rs. " + str(user_profile.Fee_Due), ''])
 
-    payment_table = Table(payment_data, colWidths=[145, 145, 145])
+    payment_table = Table(payment_data, colWidths=[col_width, col_width, col_width])
     payment_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.white),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
@@ -525,7 +537,7 @@ def download_receipt(request, transaction_id):
     content.append(payment_table)
 
     # Footer
-    content.append(Spacer(1, 20))
+    content.append(Spacer(1, 15))
     footer_style = ParagraphStyle(
         'Footer',
         parent=styles['Normal'],
