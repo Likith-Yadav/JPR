@@ -441,11 +441,19 @@ def download_receipt(request, transaction_id):
         logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
         if os.path.exists(logo_path):
             # Adjusted size to fit the page
-            logo_width = 3.5 * inch  # Reduced width
-            logo_height = 1.2 * inch  # Reduced height
+            logo_width = 3.5 * inch  # Width
+            logo_height = 1.2 * inch  # Height
+            
+            # Create a table for the logo to ensure proper centering
             logo = Image(logo_path, width=logo_width, height=logo_height)
-            logo.hAlign = 'CENTER'
-            content.append(logo)
+            logo_table = Table([[logo]], colWidths=[available_width - 30])
+            logo_table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ]))
+            content.append(logo_table)
             content.append(Spacer(1, 15))
     except Exception as e:
         print(f"Error loading logo: {e}")
