@@ -402,41 +402,41 @@ def download_receipt(request, transaction_id):
 
     # Create the PDF
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="receipt_{transaction_id}.pdf"'
+    response['Content-Disposition'] = f'inline; filename="Receipt_{transaction_id}.pdf"'
     
-    # Create the PDF document with smaller margins
+    # Create the PDF document with adjusted margins
     doc = SimpleDocTemplate(
         response,
         pagesize=letter,
-        rightMargin=50,
-        leftMargin=50,
-        topMargin=50,
-        bottomMargin=50
+        rightMargin=30,
+        leftMargin=30,
+        topMargin=30,
+        bottomMargin=30
     )
     styles = getSampleStyleSheet()
     elements = []
 
-    # Add logo centered at the top
+    # Add logo centered at the top with proper dimensions
     try:
         # Get the absolute path to the logo file
         logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
         if os.path.exists(logo_path):
-            logo = Image(logo_path, width=2*inch, height=2*inch)
+            # Adjusted size for better appearance
+            logo = Image(logo_path, width=1.5*inch, height=0.75*inch)
             logo.hAlign = 'CENTER'
             elements.append(logo)
+            elements.append(Spacer(1, 10))
     except Exception as e:
         print(f"Error loading logo: {e}")
-        # Continue without logo if there's an error
         pass
 
     # Add horizontal line below logo
-    elements.append(Spacer(1, 10))
-    line = Table([['']], colWidths=[500])
+    line = Table([['']], colWidths=[450])
     line.setStyle(TableStyle([
         ('LINEABOVE', (0, 0), (-1, 0), 1, colors.black),
     ]))
     elements.append(line)
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 10))
 
     # Transaction Receipt Header
     receipt_header = ParagraphStyle(
@@ -444,24 +444,25 @@ def download_receipt(request, transaction_id):
         parent=styles['Heading2'],
         fontSize=14,
         alignment=TA_CENTER,
-        spaceAfter=20
+        spaceAfter=10
     )
     elements.append(Paragraph("Transaction Receipt", receipt_header))
+    elements.append(Spacer(1, 10))
 
-    # Create tables for student and transaction details
+    # Create tables for student and transaction details with adjusted spacing
     detail_style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.white),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),  # Make headers bold
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
         ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
         ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-        ('TOPPADDING', (0, 0), (-1, -1), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
         ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey),
     ])
 
-    # Student Details
+    # Student Details with adjusted column widths
     student_data = [
         ['Student Name', user_profile.Name],
         ['Registration Number', user_profile.registration_number],
@@ -472,15 +473,16 @@ def download_receipt(request, transaction_id):
         ['Received By', transaction.received_by if transaction.received_by else '']
     ]
     
-    student_table = Table(student_data, colWidths=[200, 300])
+    student_table = Table(student_data, colWidths=[150, 300])
     student_table.setStyle(detail_style)
     elements.append(student_table)
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 10))
 
     # Payment Details Header
     elements.append(Paragraph("Payment Details", receipt_header))
+    elements.append(Spacer(1, 5))
 
-    # Payment Categories Table
+    # Payment Categories Table with adjusted spacing
     payment_data = [['Category', 'Amount', 'Description']]
     for category in transaction.categories.all():
         payment_data.append([
@@ -489,32 +491,31 @@ def download_receipt(request, transaction_id):
             category.description if category.description else ''
         ])
     
-    # Add total amount and fee due with bold amounts
     payment_data.append(['Total Amount', "Rs. " + str(transaction.total_amount), ''])
     payment_data.append(['Fee Due', "Rs. " + str(user_profile.Fee_Due), ''])
 
-    payment_table = Table(payment_data, colWidths=[150, 150, 200])
+    payment_table = Table(payment_data, colWidths=[150, 150, 150])
     payment_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.white),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Make header row bold
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
-        ('FONTNAME', (-2, -2), (-2, -1), 'Helvetica-Bold'),  # Make amount values bold
-        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('FONTNAME', (-2, -2), (-2, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
         ('FONTSIZE', (0, 1), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
         ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey),
-        ('LEFTPADDING', (0, 0), (-1, -1), 12),  # Add left padding to remove bullet points
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
     ]))
     elements.append(payment_table)
 
-    # Digital signature and footer
-    elements.append(Spacer(1, 30))
+    # Footer with reduced spacing
+    elements.append(Spacer(1, 15))
     footer_style = ParagraphStyle(
         'Footer',
         parent=styles['Normal'],
-        fontSize=10,
+        fontSize=8,
         textColor=colors.gray,
         alignment=TA_CENTER,
         spaceBefore=0
@@ -525,7 +526,7 @@ def download_receipt(request, transaction_id):
         digital_signature = sha256(hash_data).hexdigest()
         elements.append(Paragraph(digital_signature, footer_style))
     
-    elements.append(Spacer(1, 20))
+    elements.append(Spacer(1, 10))
     elements.append(Paragraph("Thank you for your payment!", footer_style))
     elements.append(Paragraph("For queries, contact support@publicschool.com", footer_style))
 
