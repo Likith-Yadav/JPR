@@ -37,6 +37,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import Image
 import os
 from django.conf import settings
+from django.core.mail import send_mail
 
 warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 # Create your views here.
@@ -46,49 +47,33 @@ def home(request):
         email = request.POST.get('email')
         message = request.POST.get('message')
         
-        # SMTP Configuration
-        sender_email = "proxybroproxy@gmail.com"  # Use your Gmail account
-        password = "Abcd@1234#"  # Add your app password or email password here
-        # To get an app password for Gmail:
-        # 1. Enable 2-Step Verification on your Google account
-        # 2. Go to https://myaccount.google.com/apppasswords
-        # 3. Select "Mail" and your device, then generate
-        # 4. Use the 16-character password generated here
-        recipient_email = "yushaoffline@gmail.com"
-        # recipient_email = "info.jpreducation@gmail.com"  # Where you want to receive messages
-        
-        # Create email
-        msg = MIMEMultipart()
-        msg['From'] = sender_email
-        msg['To'] = recipient_email
-        msg['Subject'] = f"Contact Form Submission from {name}"
-        
-        # Email body
-        body = f"""
-        You have received a new message from the contact form:
-        
-        Name: {name}
-        Email: {email}
-        
-        Message:
-        {message}
-        """
-        
-        msg.attach(MIMEText(body, 'plain'))
-        
         try:
-            # Connect to Gmail SMTP server
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
-            server.login(sender_email, password)
+            # Create email message
+            subject = f"Contact Form Submission from {name}"
+            email_body = f"""
+            You have received a new message from the contact form:
+            
+            Name: {name}
+            Email: {email}
+            
+            Message:
+            {message}
+            """
             
             # Send email
-            server.send_message(msg)
-            server.quit()
+            send_mail(
+                subject=subject,
+                message=email_body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.EMAIL_HOST_USER],
+                fail_silently=False,
+            )
             
             messages.success(request, 'Thank you for your message! We will get back to you soon.')
+            
         except Exception as e:
-            messages.error(request, f'Sorry, there was an error sending your message. Please try again later.')
+            print(f"Email error: {str(e)}")  # For debugging
+            messages.error(request, 'Sorry, there was an error sending your message. Please try again later.')
             
         return redirect('/#Contact-Us')
         
