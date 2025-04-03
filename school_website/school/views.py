@@ -28,7 +28,7 @@ from reportlab.lib.utils import ImageReader
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Frame
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 import requests
@@ -408,35 +408,69 @@ def download_receipt(request, transaction_id):
     doc = SimpleDocTemplate(
         response,
         pagesize=letter,
-        rightMargin=30,
-        leftMargin=30,
-        topMargin=30,
-        bottomMargin=30
+        rightMargin=50,
+        leftMargin=50,
+        topMargin=50,
+        bottomMargin=50
     )
     styles = getSampleStyleSheet()
     elements = []
+
+    # Create a frame with rounded corners
+    frame_data = [['']]
+    frame_table = Table(frame_data, colWidths=[450], rowHeights=[600])
+    frame_table.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+        ('ROUNDEDCORNERS', (0, 0), (-1, -1), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 20),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 20),
+        ('LEFTPADDING', (0, 0), (-1, -1), 20),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 20),
+    ]))
+
+    # Create inner content
+    inner_elements = []
 
     # Add logo centered at the top with proper dimensions
     try:
         # Get the absolute path to the logo file
         logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
         if os.path.exists(logo_path):
-            # Adjusted size for better appearance
-            logo = Image(logo_path, width=1.5*inch, height=0.75*inch)
+            # Adjusted size for better appearance - wider logo
+            logo = Image(logo_path, width=4*inch, height=1.2*inch)
             logo.hAlign = 'CENTER'
-            elements.append(logo)
-            elements.append(Spacer(1, 10))
+            inner_elements.append(logo)
     except Exception as e:
         print(f"Error loading logo: {e}")
         pass
 
-    # Add horizontal line below logo
-    line = Table([['']], colWidths=[450])
+    # Add school name and tagline
+    school_style = ParagraphStyle(
+        'SchoolName',
+        parent=styles['Heading1'],
+        fontSize=16,
+        alignment=TA_CENTER,
+        spaceAfter=2
+    )
+    tagline_style = ParagraphStyle(
+        'Tagline',
+        parent=styles['Normal'],
+        fontSize=10,
+        alignment=TA_CENTER,
+        textColor=colors.gray
+    )
+    inner_elements.append(Paragraph("JPR Public School", school_style))
+    inner_elements.append(Paragraph("Educating for a Brighter Future", tagline_style))
+    inner_elements.append(Spacer(1, 20))
+
+    # Add horizontal line
+    line = Table([['']], colWidths=[400])
     line.setStyle(TableStyle([
         ('LINEABOVE', (0, 0), (-1, 0), 1, colors.black),
     ]))
-    elements.append(line)
-    elements.append(Spacer(1, 10))
+    inner_elements.append(line)
+    inner_elements.append(Spacer(1, 20))
 
     # Transaction Receipt Header
     receipt_header = ParagraphStyle(
@@ -444,12 +478,11 @@ def download_receipt(request, transaction_id):
         parent=styles['Heading2'],
         fontSize=14,
         alignment=TA_CENTER,
-        spaceAfter=10
+        spaceAfter=20
     )
-    elements.append(Paragraph("Transaction Receipt", receipt_header))
-    elements.append(Spacer(1, 10))
+    inner_elements.append(Paragraph("Transaction Receipt", receipt_header))
 
-    # Create tables for student and transaction details with adjusted spacing
+    # Student Details Table
     detail_style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.white),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
@@ -457,12 +490,11 @@ def download_receipt(request, transaction_id):
         ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
         ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
         ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
         ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey),
     ])
 
-    # Student Details with adjusted column widths
     student_data = [
         ['Student Name', user_profile.Name],
         ['Registration Number', user_profile.registration_number],
@@ -473,28 +505,27 @@ def download_receipt(request, transaction_id):
         ['Received By', transaction.received_by if transaction.received_by else '']
     ]
     
-    student_table = Table(student_data, colWidths=[150, 300])
+    student_table = Table(student_data, colWidths=[150, 250])
     student_table.setStyle(detail_style)
-    elements.append(student_table)
-    elements.append(Spacer(1, 10))
+    inner_elements.append(student_table)
+    inner_elements.append(Spacer(1, 20))
 
     # Payment Details Header
-    elements.append(Paragraph("Payment Details", receipt_header))
-    elements.append(Spacer(1, 5))
+    inner_elements.append(Paragraph("Payment Details", receipt_header))
 
-    # Payment Categories Table with adjusted spacing
+    # Payment Categories Table
     payment_data = [['Category', 'Amount', 'Description']]
     for category in transaction.categories.all():
         payment_data.append([
             category.get_category_display(),
-            "Rs. " + str(category.amount),
+            "₹" + str(category.amount),
             category.description if category.description else ''
         ])
     
-    payment_data.append(['Total Amount', "Rs. " + str(transaction.total_amount), ''])
-    payment_data.append(['Fee Due', "Rs. " + str(user_profile.Fee_Due), ''])
+    payment_data.append(['Total Amount', "₹" + str(transaction.total_amount), ''])
+    payment_data.append(['Fee Due', "₹" + str(user_profile.Fee_Due), ''])
 
-    payment_table = Table(payment_data, colWidths=[150, 150, 150])
+    payment_table = Table(payment_data, colWidths=[133, 133, 134])
     payment_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.white),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
@@ -508,10 +539,10 @@ def download_receipt(request, transaction_id):
         ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey),
         ('LEFTPADDING', (0, 0), (-1, -1), 8),
     ]))
-    elements.append(payment_table)
+    inner_elements.append(payment_table)
 
-    # Footer with reduced spacing
-    elements.append(Spacer(1, 15))
+    # Footer
+    inner_elements.append(Spacer(1, 20))
     footer_style = ParagraphStyle(
         'Footer',
         parent=styles['Normal'],
@@ -521,17 +552,26 @@ def download_receipt(request, transaction_id):
         spaceBefore=0
     )
     if transaction.status:
-        elements.append(Paragraph("Digitally Signed by Public School", footer_style))
+        inner_elements.append(Paragraph("Digitally Signed by Public School", footer_style))
         hash_data = f"{transaction.transaction_id}{transaction.date}{transaction.total_amount}".encode()
         digital_signature = sha256(hash_data).hexdigest()
-        elements.append(Paragraph(digital_signature, footer_style))
+        inner_elements.append(Paragraph(digital_signature, footer_style))
     
-    elements.append(Spacer(1, 10))
-    elements.append(Paragraph("Thank you for your payment!", footer_style))
-    elements.append(Paragraph("For queries, contact support@publicschool.com", footer_style))
+    inner_elements.append(Spacer(1, 10))
+    inner_elements.append(Paragraph("Thank you for your payment!", footer_style))
+    inner_elements.append(Paragraph("For queries, contact support@publicschool.com", footer_style))
+
+    # Add inner elements to the frame
+    frame = Frame(
+        doc.leftMargin + 10,
+        doc.bottomMargin + 10,
+        doc.width - 20,
+        doc.height - 20,
+        showBoundary=0
+    )
 
     # Build the PDF
-    doc.build(elements)
+    doc.build([frame_table] + inner_elements)
     return response
 
 def gallery(request):
