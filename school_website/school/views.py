@@ -43,11 +43,11 @@ warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 # Create your views here.
 def home(request):
     if request.method == 'POST':
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        message = request.POST.get('message')
-        
         try:
+            name = request.POST.get('name')
+            email = request.POST.get('email')
+            message = request.POST.get('message')
+            
             # Create email message
             subject = f"Contact Form Submission from {name}"
             email_body = f"""
@@ -60,20 +60,25 @@ def home(request):
             {message}
             """
             
-            # Send email
+            # Send email using Django's send_mail
+            from django.core.mail import send_mail
+            
+            # Print email settings for debugging
+            print(f"Email settings: HOST={settings.EMAIL_HOST}, USER={settings.EMAIL_HOST_USER}, PORT={settings.EMAIL_PORT}")
+            
             send_mail(
-                subject=subject,
-                message=email_body,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[settings.EMAIL_HOST_USER],
+                subject,
+                email_body,
+                settings.DEFAULT_FROM_EMAIL,  # From email
+                ['yushaoffline@gmail.com'],  # To email - replace with your email
                 fail_silently=False,
             )
             
             messages.success(request, 'Thank you for your message! We will get back to you soon.')
             
         except Exception as e:
-            print(f"Email error: {str(e)}")  # For debugging
-            messages.error(request, 'Sorry, there was an error sending your message. Please try again later.')
+            print(f"Email sending error: {str(e)}")  # Detailed error logging
+            messages.error(request, f'Error: {str(e)}')  # Show actual error in message
             
         return redirect('/#Contact-Us')
         
