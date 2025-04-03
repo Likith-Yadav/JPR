@@ -63,14 +63,17 @@ def home(request):
             # Send email using Django's send_mail
             from django.core.mail import send_mail
             
-            # Print email settings for debugging
-            print(f"Email settings: HOST={settings.EMAIL_HOST}, USER={settings.EMAIL_HOST_USER}, PORT={settings.EMAIL_PORT}")
+            # List of recipients
+            recipients = [
+                'info.jpreducation@gmail.com',  # Primary school email
+                'proxybroproxy@gmail.com',       # Additional recipient
+            ]
             
             send_mail(
                 subject,
                 email_body,
                 settings.DEFAULT_FROM_EMAIL,  # From email
-                ['yushaoffline@gmail.com'],  # To email - replace with your email
+                recipients,  # To email(s)
                 fail_silently=False,
             )
             
