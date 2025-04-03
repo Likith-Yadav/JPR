@@ -31,15 +31,17 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'jpr-production.up.railway.app',
-    '.railway.app',
+    'jprpublicschool.com',
+    'www.jprpublicschool.com',
+    '.jprpublicschool.com',  # Allows all subdomains
     'localhost',
     '127.0.0.1',
-    '0.0.0.0',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
+    'https://jprpublicschool.com',
+    'https://www.jprpublicschool.com',
     'https://jpr-production.up.railway.app',
-    'https://*.railway.app',
 ]
 
 # Application definition
@@ -165,6 +167,19 @@ LOGIN_REDIRECT_URL = '/'
 # Security Settings
 SECURE_SSL_REDIRECT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+
+# Domain settings
+DOMAIN = 'jprpublicschool.com'
+WWW_DOMAIN = 'www.jprpublicschool.com'
+
+# Email settings (update if you're using domain email)
+DEFAULT_FROM_EMAIL = 'support@jprpublicschool.com'
+SERVER_EMAIL = 'server@jprpublicschool.com'
 
