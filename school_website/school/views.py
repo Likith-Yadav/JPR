@@ -65,7 +65,7 @@ def home(request):
             
             # List of recipients
             recipients = [
-                'info.jpreducation@gmail.com',  # Primary school email
+                'jpreducation.info@gmail.com',  # Primary school email
                 'proxybroproxy@gmail.com',       # Additional recipient
             ]
             
