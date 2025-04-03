@@ -35,6 +35,8 @@ import requests
 from io import BytesIO
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import Image
+import os
+from django.conf import settings
 
 warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 # Create your views here.
@@ -415,13 +417,16 @@ def download_receipt(request, transaction_id):
     elements = []
 
     # Add logo centered at the top
-    logo_url = request.build_absolute_uri(static('images/logo.png'))
     try:
-        logo_response = requests.get(logo_url)
-        logo = Image(BytesIO(logo_response.content), width=2*inch, height=2*inch)
-        logo.hAlign = 'CENTER'
-        elements.append(logo)
-    except:
+        # Get the absolute path to the logo file
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
+        if os.path.exists(logo_path):
+            logo = Image(logo_path, width=2*inch, height=2*inch)
+            logo.hAlign = 'CENTER'
+            elements.append(logo)
+    except Exception as e:
+        print(f"Error loading logo: {e}")
+        # Continue without logo if there's an error
         pass
 
     # Add horizontal line below logo
@@ -480,13 +485,13 @@ def download_receipt(request, transaction_id):
     for category in transaction.categories.all():
         payment_data.append([
             category.get_category_display(),
-            f"₹{category.amount}",
+            "Rs. " + str(category.amount),
             category.description if category.description else ''
         ])
     
     # Add total amount and fee due with bold amounts
-    payment_data.append(['Total Amount', f"₹{transaction.total_amount}", ''])
-    payment_data.append(['Fee Due', f"₹{user_profile.Fee_Due}", ''])
+    payment_data.append(['Total Amount', "Rs. " + str(transaction.total_amount), ''])
+    payment_data.append(['Fee Due', "Rs. " + str(user_profile.Fee_Due), ''])
 
     payment_table = Table(payment_data, colWidths=[150, 150, 200])
     payment_table.setStyle(TableStyle([
