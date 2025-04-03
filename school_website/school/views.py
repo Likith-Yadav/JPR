@@ -424,6 +424,13 @@ def download_receipt(request, transaction_id):
     except:
         pass
 
+    # Add horizontal line below logo
+    elements.append(Spacer(1, 10))
+    line = Table([['']], colWidths=[500])
+    line.setStyle(TableStyle([
+        ('LINEABOVE', (0, 0), (-1, 0), 1, colors.black),
+    ]))
+    elements.append(line)
     elements.append(Spacer(1, 20))
 
     # Transaction Receipt Header
@@ -492,7 +499,8 @@ def download_receipt(request, transaction_id):
         ('FONTSIZE', (0, 0), (-1, 0), 12),
         ('FONTSIZE', (0, 1), (-1, -1), 10),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey)
+        ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey),
+        ('LEFTPADDING', (0, 0), (-1, -1), 12),  # Add left padding to remove bullet points
     ]))
     elements.append(payment_table)
 
