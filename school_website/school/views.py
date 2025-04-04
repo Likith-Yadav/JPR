@@ -516,7 +516,7 @@ def download_receipt(request, transaction_id):
             ['Fee Due', f"Rs. {fee_due}", '']
         ])
 
-        payment_table = Table(payment_data, colWidths=[(available_width - 40)/3.0]*3)  # Adjusted width
+        payment_table = Table(payment_data, colWidths=[(available_width - 40)/3.0]*3)
         payment_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
@@ -528,15 +528,18 @@ def download_receipt(request, transaction_id):
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
         main_content.append(payment_table)
-        main_content.append(Spacer(1, 40))
+        
+        # Increased spacing after payment table
+        main_content.append(Spacer(1, 80))
 
         # Signature and Seal section with adjusted width
         signature_data = [
             ['_'*20, '', '_'*20],  # Lines first
+            ['', '', ''],  # Empty row for more space
             ['Authorized Seal', '', 'Authorized Signature'],  # Text below lines
         ]
         
-        signature_table = Table(signature_data, colWidths=[(available_width - 40)/3.0]*3)  # Adjusted width
+        signature_table = Table(signature_data, colWidths=[(available_width - 40)/3.0]*3)
         signature_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
@@ -545,7 +548,7 @@ def download_receipt(request, transaction_id):
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
         main_content.append(signature_table)
-        main_content.append(Spacer(1, 20))
+        main_content.append(Spacer(1, 40))
 
         # Digital Signature and Footer
         if transaction.status:
@@ -569,8 +572,8 @@ def download_receipt(request, transaction_id):
             except Exception as e:
                 print(f"Digital signature error: {e}")
 
-        # Footer
-        main_content.append(Spacer(1, 10))
+        # Footer with increased spacing
+        main_content.append(Spacer(1, 20))
         footer_style = ParagraphStyle(
             'Footer',
             parent=styles['Normal'],
@@ -580,15 +583,16 @@ def download_receipt(request, transaction_id):
         )
         main_content.append(Paragraph("Thank you for your payment!", footer_style))
         main_content.append(Paragraph("For queries, contact support@publicschool.com", footer_style))
+        main_content.append(Spacer(1, 10))  # Extra bottom spacing
 
-        # Create main table with border
+        # Create main table with border and increased bottom padding
         main_table = Table([[main_content]], colWidths=[available_width])
         main_table.setStyle(TableStyle([
             ('BOX', (0, 0), (-1, -1), 1, colors.black),
             ('LEFTPADDING', (0, 0), (-1, -1), 20),
             ('RIGHTPADDING', (0, 0), (-1, -1), 20),
             ('TOPPADDING', (0, 0), (-1, -1), 20),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 20),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 30),  # Increased bottom padding
             ('BACKGROUND', (0, 0), (-1, -1), colors.white),
         ]))
         
