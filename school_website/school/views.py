@@ -28,16 +28,15 @@ from reportlab.lib.utils import ImageReader
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 import requests
 from io import BytesIO
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import Image
 import os
 from django.conf import settings
 from django.core.mail import send_mail
+from django.contrib.auth.decorators import login_required
 
 warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 # Create your views here.
@@ -385,241 +384,256 @@ def update_fee(request):
 
 
 
+@login_required
 def download_receipt(request, transaction_id):
     """
     Generate and download the receipt as a PDF using reportlab.
     """
-    # Fetch transaction and user details from the database
-    transaction = get_object_or_404(Transactions, transaction_id=transaction_id)
-    user_profile = get_object_or_404(UserProfile, user=transaction.user)
-
-    # Create the PDF
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="Receipt_{transaction_id}.pdf"'
-    response['X-Frame-Options'] = 'SAMEORIGIN'
-    response['Content-Type'] = 'application/pdf'
-    
-    # Add title metadata
-    from reportlab.pdfgen import canvas
-    from io import BytesIO
-    
-    # Create a PDF buffer
-    buffer = BytesIO()
-    
-    # Create the PDF document with adjusted margins for border
-    doc = SimpleDocTemplate(
-        buffer,
-        pagesize=letter,
-        rightMargin=40,
-        leftMargin=40,
-        topMargin=40,
-        bottomMargin=40,
-        title=f"Receipt - {user_profile.Name}",
-        author="JPR Public School",
-        subject=f"Fee Receipt - {transaction_id}",
-        creator="JPR Public School"
-    )
-    
-    styles = getSampleStyleSheet()
-    elements = []
-
-    # Calculate available width
-    available_width = letter[0] - (doc.rightMargin + doc.leftMargin)
-    
-    # Create a frame with rounded corners
-    frame_data = [['']]
-    main_table = Table(frame_data, colWidths=[available_width - 20])  # -20 for padding
-    main_table.setStyle(TableStyle([
-        ('ROUNDEDCORNERS', (0, 0), (-1, -1), 15),
-        ('BOX', (0, 0), (-1, -1), 1.5, colors.black),
-        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-        ('LEFTPADDING', (0, 0), (-1, -1), 15),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 15),
-        ('TOPPADDING', (0, 0), (-1, -1), 15),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 15),
-    ]))
-
-    # Content elements list
-    content = []
-
-    # Add logo centered at the top with adjusted dimensions
     try:
-        # Get the absolute path to the logo file
-        logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
-        if os.path.exists(logo_path):
-            # Adjusted size to fit the page
-            logo_width = 3.5 * inch  # Width
-            logo_height = 1.2 * inch  # Height
+        # Fetch transaction and user details from the database
+        transaction = get_object_or_404(Transactions, transaction_id=transaction_id)
+        
+        # Check if the user is authorized to view this receipt
+        if not (request.user.is_staff or request.user == transaction.user):
+            messages.error(request, 'You are not authorized to view this receipt.')
+            return redirect('dashboard', username=request.user.username)
             
-            # Create a table for the logo to ensure proper centering
-            logo = Image(logo_path, width=logo_width, height=logo_height)
-            logo_table = Table([[logo]], colWidths=[available_width - 30])
-            logo_table.setStyle(TableStyle([
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                ('LEFTPADDING', (0, 0), (-1, -1), 0),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        user_profile = get_object_or_404(UserProfile, user=transaction.user)
+
+        # Create the PDF
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="Receipt_{transaction_id}.pdf"'
+        response['X-Frame-Options'] = 'SAMEORIGIN'
+        
+        # Create a PDF buffer
+        buffer = BytesIO()
+        
+        try:
+            # Create the PDF document with adjusted margins for border
+            doc = SimpleDocTemplate(
+                buffer,
+                pagesize=letter,
+                rightMargin=40,
+                leftMargin=40,
+                topMargin=40,
+                bottomMargin=40,
+                title=f"Receipt - {user_profile.Name}",
+                author="JPR Public School",
+                subject=f"Fee Receipt - {transaction_id}",
+                creator="JPR Public School"
+            )
+            
+            styles = getSampleStyleSheet()
+            elements = []
+
+            # Calculate available width
+            available_width = letter[0] - (doc.rightMargin + doc.leftMargin)
+            
+            # Create a frame with rounded corners
+            frame_data = [['']]
+            main_table = Table(frame_data, colWidths=[available_width - 20])  # -20 for padding
+            main_table.setStyle(TableStyle([
+                ('ROUNDEDCORNERS', (0, 0), (-1, -1), 15),
+                ('BOX', (0, 0), (-1, -1), 1.5, colors.black),
+                ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+                ('LEFTPADDING', (0, 0), (-1, -1), 15),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 15),
+                ('TOPPADDING', (0, 0), (-1, -1), 15),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 15),
             ]))
-            content.append(logo_table)
+
+            # Content elements list
+            content = []
+
+            # Add logo centered at the top with adjusted dimensions
+            try:
+                # Get the absolute path to the logo file
+                logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
+                if os.path.exists(logo_path):
+                    # Adjusted size to fit the page
+                    logo_width = 3.5 * inch  # Width
+                    logo_height = 1.2 * inch  # Height
+                    
+                    # Create a table for the logo to ensure proper centering
+                    logo = Image(logo_path, width=logo_width, height=logo_height)
+                    logo_table = Table([[logo]], colWidths=[available_width - 30])
+                    logo_table.setStyle(TableStyle([
+                        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+                    ]))
+                    content.append(logo_table)
+                    content.append(Spacer(1, 15))
+            except Exception as e:
+                print(f"Error loading logo: {e}")
+                pass
+
+            # Add horizontal line
+            line = Table([['']], colWidths=[available_width - 50])  # Adjusted width
+            line.setStyle(TableStyle([
+                ('LINEABOVE', (0, 0), (-1, 0), 1, colors.black),
+            ]))
+            content.append(line)
             content.append(Spacer(1, 15))
+
+            # Transaction Receipt Header
+            receipt_header = ParagraphStyle(
+                'ReceiptHeader',
+                parent=styles['Heading2'],
+                fontSize=14,
+                alignment=TA_CENTER,
+                spaceAfter=10
+            )
+            content.append(Paragraph("Transaction Receipt", receipt_header))
+            content.append(Spacer(1, 10))
+
+            # Calculate table widths based on available space
+            label_width = available_width * 0.3
+            value_width = available_width * 0.7 - 50  # -50 for padding and margins
+
+            # Student Details
+            detail_style = TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+                ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                ('TOPPADDING', (0, 0), (-1, -1), 6),
+                ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey),
+            ])
+
+            student_data = [
+                ['Student Name', user_profile.Name],
+                ['Registration Number', user_profile.registration_number],
+                ['Class', user_profile.Class],
+                ['Date', transaction.date.strftime('%d %b %Y')],
+                ['Time', transaction.time.strftime('%H:%M') if transaction.time else ''],
+                ['Payment Mode', transaction.payment_mode],
+                ['Transaction ID', transaction.transaction_id],
+                ['Received By', transaction.received_by if transaction.received_by else '']
+            ]
+            
+            student_table = Table(student_data, colWidths=[label_width, value_width])
+            student_table.setStyle(detail_style)
+            content.append(student_table)
+            content.append(Spacer(1, 15))
+
+            # Payment Details
+            content.append(Paragraph("Payment Details", receipt_header))
+            content.append(Spacer(1, 10))
+
+            # Calculate payment table column widths
+            col_width = (available_width - 80) / 3  # -80 for padding and margins
+
+            payment_data = [['Category', 'Amount', 'Description']]
+            for category in transaction.categories.all():
+                payment_data.append([
+                    category.get_category_display(),
+                    f"₹{category.amount}",
+                    category.description if category.description else ''
+                ])
+            
+            payment_data.append(['Total Amount', f"₹{transaction.total_amount}", ''])
+            payment_data.append(['Fee Due', f"₹{user_profile.Fee_Due}", ''])
+
+            payment_table = Table(payment_data, colWidths=[col_width, col_width, col_width])
+            payment_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+                ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
+                ('FONTNAME', (-2, -2), (-2, -1), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ('FONTSIZE', (0, 1), (-1, -1), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+                ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey),
+                ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ]))
+            content.append(payment_table)
+
+            # Add spacer before signature section
+            content.append(Spacer(1, 30))
+
+            # Create signature and seal section
+            signature_style = ParagraphStyle(
+                'SignatureStyle',
+                parent=styles['Normal'],
+                fontSize=10,
+                alignment=TA_CENTER
+            )
+
+            # Create a table for signature and seal
+            signature_data = [
+                ['', ''],  # Empty row for actual signature space
+                ['_____________________', '_____________________'],
+                ['Authorized Signature', 'School Seal']
+            ]
+            
+            signature_table = Table(signature_data, colWidths=[col_width, col_width])
+            signature_table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('TOPPADDING', (0, 0), (-1, 0), 40),  # Space for actual signature
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ]))
+
+            # Create a wrapper table to position signature table on the right
+            wrapper_data = [[signature_table]]
+            wrapper_table = Table(wrapper_data, colWidths=[available_width])
+            wrapper_table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 20),
+            ]))
+            content.append(wrapper_table)
+
+            # Footer
+            content.append(Spacer(1, 15))
+            footer_style = ParagraphStyle(
+                'Footer',
+                parent=styles['Normal'],
+                fontSize=8,
+                textColor=colors.gray,
+                alignment=TA_CENTER,
+                spaceBefore=0
+            )
+            if transaction.status:
+                content.append(Paragraph("Digitally Signed by JPR Public School", footer_style))
+                hash_data = f"{transaction.transaction_id}{transaction.date}{transaction.total_amount}".encode()
+                digital_signature = sha256(hash_data).hexdigest()
+                content.append(Paragraph(digital_signature, footer_style))
+            
+            content.append(Spacer(1, 10))
+            content.append(Paragraph("Thank you for your payment!", footer_style))
+            content.append(Paragraph("For queries, contact support@jprpublicschool.com", footer_style))
+
+            # Create the main table with rounded corners and add all content
+            main_table._cellvalues[0][0] = content
+            elements.append(main_table)
+
+            # Build the PDF
+            doc.build(elements)
+            
+            # Get the value of the BytesIO buffer and write it to the response
+            pdf = buffer.getvalue()
+            buffer.close()
+            response.write(pdf)
+            
+            return response
+            
+        except Exception as e:
+            print(f"Error generating PDF: {e}")
+            messages.error(request, 'Error generating receipt PDF. Please try again later.')
+            return redirect('dashboard', username=request.user.username)
+            
     except Exception as e:
-        print(f"Error loading logo: {e}")
-        pass
-
-    # Add horizontal line
-    line = Table([['']], colWidths=[available_width - 50])  # Adjusted width
-    line.setStyle(TableStyle([
-        ('LINEABOVE', (0, 0), (-1, 0), 1, colors.black),
-    ]))
-    content.append(line)
-    content.append(Spacer(1, 15))
-
-    # Transaction Receipt Header
-    receipt_header = ParagraphStyle(
-        'ReceiptHeader',
-        parent=styles['Heading2'],
-        fontSize=14,
-        alignment=TA_CENTER,
-        spaceAfter=10
-    )
-    content.append(Paragraph("Transaction Receipt", receipt_header))
-    content.append(Spacer(1, 10))
-
-    # Calculate table widths based on available space
-    label_width = available_width * 0.3
-    value_width = available_width * 0.7 - 50  # -50 for padding and margins
-
-    # Student Details
-    detail_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
-        ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey),
-    ])
-
-    student_data = [
-        ['Student Name', user_profile.Name],
-        ['Registration Number', user_profile.registration_number],
-        ['Class', user_profile.Class],
-        ['Date', transaction.date.strftime('%d %b %Y %H:%M')],
-        ['Payment Mode', transaction.payment_mode],
-        ['Transaction ID', transaction.transaction_id],
-        ['Received By', transaction.received_by if transaction.received_by else '']
-    ]
-    
-    student_table = Table(student_data, colWidths=[label_width, value_width])
-    student_table.setStyle(detail_style)
-    content.append(student_table)
-    content.append(Spacer(1, 15))
-
-    # Payment Details
-    content.append(Paragraph("Payment Details", receipt_header))
-    content.append(Spacer(1, 10))
-
-    # Calculate payment table column widths
-    col_width = (available_width - 80) / 3  # -80 for padding and margins
-
-    payment_data = [['Category', 'Amount', 'Description']]
-    for category in transaction.categories.all():
-        payment_data.append([
-            category.get_category_display(),
-            "Rs. " + str(category.amount),
-            category.description if category.description else ''
-        ])
-    
-    payment_data.append(['Total Amount', "Rs. " + str(transaction.total_amount), ''])
-    payment_data.append(['Fee Due', "Rs. " + str(user_profile.Fee_Due), ''])
-
-    payment_table = Table(payment_data, colWidths=[col_width, col_width, col_width])
-    payment_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
-        ('FONTNAME', (-2, -2), (-2, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 10),
-        ('FONTSIZE', (0, 1), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey),
-        ('LEFTPADDING', (0, 0), (-1, -1), 8),
-    ]))
-    content.append(payment_table)
-
-    # Add spacer before signature section
-    content.append(Spacer(1, 30))
-
-    # Create signature and seal section
-    signature_style = ParagraphStyle(
-        'SignatureStyle',
-        parent=styles['Normal'],
-        fontSize=10,
-        alignment=TA_CENTER
-    )
-
-    # Create a table for signature and seal
-    signature_data = [
-        ['', ''],  # Empty row for actual signature space
-        ['_____________________', '_____________________'],
-        ['Authorized Signature', 'School Seal']
-    ]
-    
-    signature_table = Table(signature_data, colWidths=[col_width, col_width])
-    signature_table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('TOPPADDING', (0, 0), (-1, 0), 40),  # Space for actual signature
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-    ]))
-
-    # Create a wrapper table to position signature table on the right
-    wrapper_data = [[signature_table]]
-    wrapper_table = Table(wrapper_data, colWidths=[available_width])
-    wrapper_table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 20),
-    ]))
-    content.append(wrapper_table)
-
-    # Footer
-    content.append(Spacer(1, 15))
-    footer_style = ParagraphStyle(
-        'Footer',
-        parent=styles['Normal'],
-        fontSize=8,
-        textColor=colors.gray,
-        alignment=TA_CENTER,
-        spaceBefore=0
-    )
-    if transaction.status:
-        content.append(Paragraph("Digitally Signed by Public School", footer_style))
-        hash_data = f"{transaction.transaction_id}{transaction.date}{transaction.total_amount}".encode()
-        digital_signature = sha256(hash_data).hexdigest()
-        content.append(Paragraph(digital_signature, footer_style))
-    
-    content.append(Spacer(1, 10))
-    content.append(Paragraph("Thank you for your payment!", footer_style))
-    content.append(Paragraph("For queries, contact support@publicschool.com", footer_style))
-
-    # Create the main table with rounded corners and add all content
-    main_table._cellvalues[0][0] = content
-    elements.append(main_table)
-
-    # Build the PDF
-    doc.build(elements)
-    
-    # Get the value of the BytesIO buffer and write it to the response
-    pdf = buffer.getvalue()
-    buffer.close()
-    response.write(pdf)
-    
-    return response
+        print(f"Error in download_receipt view: {e}")
+        messages.error(request, 'Error retrieving receipt. Please try again later.')
+        return redirect('dashboard', username=request.user.username)
 
 def gallery(request):
     return render(request, 'gallery.html')
