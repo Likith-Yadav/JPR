@@ -405,10 +405,10 @@ def download_receipt(request, transaction_id):
         doc = SimpleDocTemplate(
             buffer,
             pagesize=letter,
-            rightMargin=36,
-            leftMargin=36,
-            topMargin=36,
-            bottomMargin=36,
+            rightMargin=45,
+            leftMargin=45,
+            topMargin=45,
+            bottomMargin=45,
             title=f"Receipt_{transaction_id}",
             author="JPR Public School",
             subject="Fee Receipt",
@@ -429,8 +429,8 @@ def download_receipt(request, transaction_id):
         try:
             logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
             if os.path.exists(logo_path):
-                logo = Image(logo_path, width=3*inch, height=1*inch)
-                logo_table = Table([[logo]], colWidths=[available_width - 40])
+                logo = Image(logo_path, width=3*inch, height=0.8*inch)  # Reduced height
+                logo_table = Table([[logo]], colWidths=[available_width - 30])
                 logo_table.setStyle(TableStyle([
                     ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                     ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
@@ -439,16 +439,16 @@ def download_receipt(request, transaction_id):
         except Exception as e:
             print(f"Logo loading error: {e}")
         
-        main_content.append(Spacer(1, 15))
+        main_content.append(Spacer(1, 10))  # Reduced spacing
         
         # Add horizontal line
-        line_table = Table([['']], colWidths=[available_width - 40])
+        line_table = Table([['']], colWidths=[available_width - 30])
         line_table.setStyle(TableStyle([
             ('LINEBELOW', (0, 0), (-1, 0), 1, colors.black),
         ]))
         main_content.append(line_table)
         
-        main_content.append(Spacer(1, 15))
+        main_content.append(Spacer(1, 10))  # Reduced spacing
 
         # Transaction Receipt Header
         main_content.append(Paragraph("Transaction Receipt", ParagraphStyle(
@@ -456,7 +456,7 @@ def download_receipt(request, transaction_id):
             parent=styles['Heading1'],
             fontSize=14,
             alignment=TA_CENTER,
-            spaceAfter=15
+            spaceAfter=10  # Reduced spacing
         )))
 
         # Student Details
@@ -470,7 +470,7 @@ def download_receipt(request, transaction_id):
             ['Received By', str(transaction.received_by or 'N/A')]
         ]
 
-        student_table = Table(student_data, colWidths=[available_width*0.3, available_width*0.7 - 40])
+        student_table = Table(student_data, colWidths=[available_width*0.3, available_width*0.7 - 30])
         student_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
@@ -483,7 +483,7 @@ def download_receipt(request, transaction_id):
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
         main_content.append(student_table)
-        main_content.append(Spacer(1, 15))
+        main_content.append(Spacer(1, 10))  # Reduced spacing
 
         # Payment Details Header
         main_content.append(Paragraph("Payment Details", ParagraphStyle(
@@ -523,7 +523,7 @@ def download_receipt(request, transaction_id):
             ['Fee Due', f"Rs. {fee_due}", '']
         ])
 
-        payment_table = Table(payment_data, colWidths=[(available_width - 40)/3.0]*3)
+        payment_table = Table(payment_data, colWidths=[(available_width - 30)/3.0]*3)
         payment_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
@@ -535,7 +535,7 @@ def download_receipt(request, transaction_id):
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
         main_content.append(payment_table)
-        main_content.append(Spacer(1, 70))  # Increased spacing after payment table
+        main_content.append(Spacer(1, 60))  # Adjusted spacing
 
         # Signature and Seal section
         signature_data = [
@@ -544,7 +544,7 @@ def download_receipt(request, transaction_id):
             ['Authorized Seal', '', 'Authorized Signature']
         ]
         
-        signature_table = Table(signature_data, colWidths=[(available_width - 40)/3.0]*3)
+        signature_table = Table(signature_data, colWidths=[(available_width - 30)/3.0]*3)
         signature_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
@@ -553,7 +553,7 @@ def download_receipt(request, transaction_id):
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
         main_content.append(signature_table)
-        main_content.append(Spacer(1, 30))
+        main_content.append(Spacer(1, 20))  # Reduced spacing
 
         # Digital Signature and Footer
         if transaction.status:
@@ -578,7 +578,7 @@ def download_receipt(request, transaction_id):
                 print(f"Digital signature error: {e}")
 
         # Footer
-        main_content.append(Spacer(1, 15))
+        main_content.append(Spacer(1, 10))  # Reduced spacing
         footer_style = ParagraphStyle(
             'Footer',
             parent=styles['Normal'],
@@ -593,10 +593,10 @@ def download_receipt(request, transaction_id):
         main_table = Table([[main_content]], colWidths=[available_width])
         main_table.setStyle(TableStyle([
             ('BOX', (0, 0), (-1, -1), 1, colors.black),
-            ('LEFTPADDING', (0, 0), (-1, -1), 20),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 20),
-            ('TOPPADDING', (0, 0), (-1, -1), 20),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 20),
+            ('LEFTPADDING', (0, 0), (-1, -1), 15),  # Reduced padding
+            ('RIGHTPADDING', (0, 0), (-1, -1), 15),  # Reduced padding
+            ('TOPPADDING', (0, 0), (-1, -1), 15),  # Reduced padding
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 15),  # Reduced padding
             ('BACKGROUND', (0, 0), (-1, -1), colors.white),
         ]))
         
