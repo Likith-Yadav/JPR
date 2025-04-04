@@ -401,14 +401,18 @@ def download_receipt(request, transaction_id):
         # Create a PDF buffer
         buffer = BytesIO()
         
-        # Create the PDF document
+        # Create the PDF document with title metadata
         doc = SimpleDocTemplate(
             buffer,
             pagesize=letter,
             rightMargin=40,
             leftMargin=40,
             topMargin=40,
-            bottomMargin=40
+            bottomMargin=40,
+            title=f"Receipt_{transaction_id}",
+            author="JPR Public School",
+            subject="Fee Receipt",
+            creator="JPR Public School"
         )
         
         # Initialize styles
@@ -418,7 +422,7 @@ def download_receipt(request, transaction_id):
         # Calculate available width
         available_width = letter[0] - (doc.rightMargin + doc.leftMargin)
         
-        # Create main border table
+        # Create main content
         main_content = []
         
         # Add logo with proper centering
@@ -426,7 +430,7 @@ def download_receipt(request, transaction_id):
             logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
             if os.path.exists(logo_path):
                 logo = Image(logo_path, width=4*inch, height=1*inch)
-                logo_table = Table([[logo]], colWidths=[available_width])
+                logo_table = Table([[logo]], colWidths=[available_width - 40])  # Reduced width to prevent border overlap
                 logo_table.setStyle(TableStyle([
                     ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                     ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
@@ -437,10 +441,12 @@ def download_receipt(request, transaction_id):
         
         main_content.append(Spacer(1, 20))
         
-        # Add horizontal line
-        main_content.append(Table([['']], colWidths=[available_width], style=TableStyle([
-            ('LINEBELOW', (0, 0), (-1, 0), 1, colors.black)
-        ])))
+        # Add horizontal line with reduced width
+        line_table = Table([['']], colWidths=[available_width - 40])
+        line_table.setStyle(TableStyle([
+            ('LINEBELOW', (0, 0), (-1, 0), 1, colors.black),
+        ]))
+        main_content.append(line_table)
         
         main_content.append(Spacer(1, 20))
 
@@ -464,7 +470,7 @@ def download_receipt(request, transaction_id):
             ['Received By', transaction.received_by or 'N/A']
         ]
 
-        student_table = Table(student_data, colWidths=[available_width*0.3, available_width*0.7])
+        student_table = Table(student_data, colWidths=[available_width*0.3, available_width*0.7 - 40])  # Adjusted width
         student_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
@@ -510,7 +516,7 @@ def download_receipt(request, transaction_id):
             ['Fee Due', f"Rs. {fee_due}", '']
         ])
 
-        payment_table = Table(payment_data, colWidths=[available_width/3.0]*3)
+        payment_table = Table(payment_data, colWidths=[(available_width - 40)/3.0]*3)  # Adjusted width
         payment_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
@@ -524,13 +530,13 @@ def download_receipt(request, transaction_id):
         main_content.append(payment_table)
         main_content.append(Spacer(1, 40))
 
-        # Signature and Seal section
+        # Signature and Seal section with adjusted width
         signature_data = [
             ['_'*20, '', '_'*20],  # Lines first
             ['Authorized Seal', '', 'Authorized Signature'],  # Text below lines
         ]
         
-        signature_table = Table(signature_data, colWidths=[available_width/3.0]*3)
+        signature_table = Table(signature_data, colWidths=[(available_width - 40)/3.0]*3)  # Adjusted width
         signature_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
