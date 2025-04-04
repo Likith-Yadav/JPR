@@ -451,7 +451,7 @@ def download_receipt(request, transaction_id):
         main_content.append(Spacer(1, 10))  # Reduced spacing
 
         # Transaction Receipt Header
-        main_content.append(Paragraph("Transaction Receipt", ParagraphStyle(
+        main_content.append(Paragraph("Fee Receipt", ParagraphStyle(
             'Header',
             parent=styles['Heading1'],
             fontSize=14,
@@ -535,25 +535,24 @@ def download_receipt(request, transaction_id):
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
         main_content.append(payment_table)
-        main_content.append(Spacer(1, 60))  # Adjusted spacing
+        main_content.append(Spacer(1, 60))  # Space before signature
 
-        # Signature and Seal section
+        # Single Signature and Seal section at bottom right
         signature_data = [
-            ['_'*20, '', '_'*20],
-            ['', '', ''],
-            ['Authorized Seal', '', 'Authorized Signature']
+            ['', '_'*25],
+            ['', 'Authorized Signature & Seal']
         ]
         
-        signature_table = Table(signature_data, colWidths=[(available_width - 30)/3.0]*3)
+        signature_table = Table(signature_data, colWidths=[available_width*0.7, available_width*0.3 - 30])
         signature_table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('ALIGN', (1, 0), (1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
             ('TOPPADDING', (0, 0), (-1, -1), 3),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
         main_content.append(signature_table)
-        main_content.append(Spacer(1, 20))  # Reduced spacing
+        main_content.append(Spacer(1, 20))
 
         # Digital Signature and Footer
         if transaction.status:
