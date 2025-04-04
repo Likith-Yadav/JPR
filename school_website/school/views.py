@@ -430,7 +430,7 @@ def download_receipt(request, transaction_id):
             logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
             if os.path.exists(logo_path):
                 logo = Image(logo_path, width=4*inch, height=1*inch)
-                logo_table = Table([[logo]], colWidths=[available_width - 40])  # Reduced width to prevent border overlap
+                logo_table = Table([[logo]], colWidths=[available_width - 40])
                 logo_table.setStyle(TableStyle([
                     ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                     ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
@@ -438,7 +438,9 @@ def download_receipt(request, transaction_id):
                 main_content.append(logo_table)
         except Exception as e:
             print(f"Logo loading error: {e}")
-        
+            # Continue without logo if there's an error
+            pass
+
         main_content.append(Spacer(1, 20))
         
         # Add horizontal line with reduced width
@@ -461,16 +463,16 @@ def download_receipt(request, transaction_id):
 
         # Student Details
         student_data = [
-            ['Student Name', user_profile.Name or 'N/A'],
-            ['Registration Number', user_profile.registration_number or 'N/A'],
-            ['Class', user_profile.Class or 'N/A'],
+            ['Student Name', str(user_profile.Name or 'N/A')],
+            ['Registration Number', str(user_profile.registration_number or 'N/A')],
+            ['Class', str(user_profile.Class or 'N/A')],
             ['Date', transaction.date.strftime('%d %b %Y %H:%M') if transaction.date else 'N/A'],
-            ['Payment Mode', transaction.payment_mode or 'N/A'],
-            ['Transaction ID', transaction.transaction_id or 'N/A'],
-            ['Received By', transaction.received_by or 'N/A']
+            ['Payment Mode', str(transaction.payment_mode or 'N/A')],
+            ['Transaction ID', str(transaction.transaction_id or 'N/A')],
+            ['Received By', str(transaction.received_by or 'N/A')]
         ]
 
-        student_table = Table(student_data, colWidths=[available_width*0.3, available_width*0.7 - 40])  # Adjusted width
+        student_table = Table(student_data, colWidths=[available_width*0.3, available_width*0.7 - 40])
         student_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
@@ -496,20 +498,29 @@ def download_receipt(request, transaction_id):
 
         # Payment Details Table
         payment_data = [['Category', 'Amount', 'Description']]
+        
+        # Handle categories safely
+        categories = []
         try:
-            for category in transaction.categories.all():
-                payment_data.append([
-                    category.get_category_display() or 'N/A',
-                    f"Rs. {category.amount or 0}",
-                    category.description or ''
-                ])
+            categories = list(transaction.categories.all())
         except Exception as e:
-            print(f"Error processing categories: {e}")
-            payment_data.append(['N/A', 'Rs. 0', ''])
+            print(f"Error fetching categories: {e}")
+            categories = []
+
+        if categories:
+            for category in categories:
+                payment_data.append([
+                    str(category.get_category_display() or 'N/A'),
+                    f"Rs. {category.amount or 0}",
+                    str(category.description or '')
+                ])
+        else:
+            # If no categories, add the total amount as a single row
+            payment_data.append(['Fee Payment', f"Rs. {transaction.amount or 0}", ''])
 
         # Add total amount and fee due
-        total_amount = getattr(transaction, 'total_amount', 0) or 0
-        fee_due = getattr(user_profile, 'Fee_Due', 0) or 0
+        total_amount = transaction.amount if hasattr(transaction, 'amount') else 0
+        fee_due = user_profile.Fee_Due if hasattr(user_profile, 'Fee_Due') else 0
         
         payment_data.extend([
             ['Total Amount', f"Rs. {total_amount}", ''],
@@ -583,7 +594,7 @@ def download_receipt(request, transaction_id):
         )
         main_content.append(Paragraph("Thank you for your payment!", footer_style))
         main_content.append(Paragraph("For queries, contact support@publicschool.com", footer_style))
-        main_content.append(Spacer(1, 10))  # Extra bottom spacing
+        main_content.append(Spacer(1, 10))
 
         # Create main table with border and increased bottom padding
         main_table = Table([[main_content]], colWidths=[available_width])
@@ -592,7 +603,7 @@ def download_receipt(request, transaction_id):
             ('LEFTPADDING', (0, 0), (-1, -1), 20),
             ('RIGHTPADDING', (0, 0), (-1, -1), 20),
             ('TOPPADDING', (0, 0), (-1, -1), 20),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 30),  # Increased bottom padding
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 30),
             ('BACKGROUND', (0, 0), (-1, -1), colors.white),
         ]))
         
@@ -609,8 +620,10 @@ def download_receipt(request, transaction_id):
         return response
         
     except Exception as e:
+        import traceback
         print(f"Error generating receipt: {e}")
-        return HttpResponse("Error generating receipt. Please try again later.", status=500)
+        print(traceback.format_exc())  # Print full traceback
+        return HttpResponse(f"Error generating receipt: {str(e)}", status=500)
 
 def gallery(request):
     return render(request, 'gallery.html')
