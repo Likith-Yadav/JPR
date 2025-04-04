@@ -405,10 +405,10 @@ def download_receipt(request, transaction_id):
         doc = SimpleDocTemplate(
             buffer,
             pagesize=letter,
-            rightMargin=30,
-            leftMargin=30,
-            topMargin=30,
-            bottomMargin=30
+            rightMargin=40,
+            leftMargin=40,
+            topMargin=40,
+            bottomMargin=40
         )
         
         # Initialize styles
@@ -417,56 +417,74 @@ def download_receipt(request, transaction_id):
 
         # Calculate available width
         available_width = letter[0] - (doc.rightMargin + doc.leftMargin)
-
-        # Add logo if exists
+        
+        # Create main border table
+        main_content = []
+        
+        # Add logo
         try:
             logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
             if os.path.exists(logo_path):
-                logo = Image(logo_path, width=2*inch, height=1*inch)
-                elements.append(logo)
-                elements.append(Spacer(1, 20))
+                logo = Image(logo_path, width=4*inch, height=1*inch)
+                main_content.append(logo)
         except Exception as e:
             print(f"Logo loading error: {e}")
+        
+        main_content.append(Spacer(1, 20))
+        
+        # Add horizontal line
+        main_content.append(Table([['']], colWidths=[available_width], style=TableStyle([
+            ('LINEBELOW', (0, 0), (-1, 0), 1, colors.black)
+        ])))
+        
+        main_content.append(Spacer(1, 20))
 
-        # Add header
-        header_style = ParagraphStyle(
-            'CustomHeader',
+        # Transaction Receipt Header
+        main_content.append(Paragraph("Transaction Receipt", ParagraphStyle(
+            'Header',
             parent=styles['Heading1'],
-            fontSize=16,
+            fontSize=14,
             alignment=TA_CENTER,
             spaceAfter=20
-        )
-        elements.append(Paragraph("Transaction Receipt", header_style))
+        )))
 
         # Student Details
         student_data = [
-            ['Student Name:', user_profile.Name or 'N/A'],
-            ['Registration Number:', user_profile.registration_number or 'N/A'],
-            ['Class:', user_profile.Class or 'N/A'],
-            ['Date:', transaction.date.strftime('%d %b %Y %H:%M') if transaction.date else 'N/A'],
-            ['Payment Mode:', transaction.payment_mode or 'N/A'],
-            ['Transaction ID:', transaction.transaction_id or 'N/A'],
-            ['Received By:', transaction.received_by or 'N/A']
+            ['Student Name', user_profile.Name or 'N/A'],
+            ['Registration Number', user_profile.registration_number or 'N/A'],
+            ['Class', user_profile.Class or 'N/A'],
+            ['Date', transaction.date.strftime('%d %b %Y %H:%M') if transaction.date else 'N/A'],
+            ['Payment Mode', transaction.payment_mode or 'N/A'],
+            ['Transaction ID', transaction.transaction_id or 'N/A'],
+            ['Received By', transaction.received_by or 'N/A']
         ]
 
-        # Create student details table
         student_table = Table(student_data, colWidths=[available_width*0.3, available_width*0.7])
         student_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
             ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
-        elements.append(student_table)
-        elements.append(Spacer(1, 20))
+        main_content.append(student_table)
+        main_content.append(Spacer(1, 20))
 
-        # Payment Details
-        elements.append(Paragraph("Payment Details", header_style))
-        
-        # Get payment categories
+        # Payment Details Header
+        main_content.append(Paragraph("Payment Details", ParagraphStyle(
+            'PaymentHeader',
+            parent=styles['Heading2'],
+            fontSize=14,
+            alignment=TA_CENTER,
+            spaceAfter=10
+        )))
+
+        # Payment Details Table
         payment_data = [['Category', 'Amount', 'Description']]
         try:
             for category in transaction.categories.all():
@@ -484,58 +502,87 @@ def download_receipt(request, transaction_id):
         fee_due = getattr(user_profile, 'Fee_Due', 0) or 0
         
         payment_data.extend([
-            ['Total Amount:', f"Rs. {total_amount}", ''],
-            ['Fee Due:', f"Rs. {fee_due}", '']
+            ['Total Amount', f"Rs. {total_amount}", ''],
+            ['Fee Due', f"Rs. {fee_due}", '']
         ])
 
-        # Create payment table
-        col_width = available_width / 3
-        payment_table = Table(payment_data, colWidths=[col_width, col_width, col_width])
+        payment_table = Table(payment_data, colWidths=[available_width/3.0]*3)
         payment_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTNAME', (0, 1), (-1, -3), 'Helvetica'),
-            ('FONTNAME', (-2, -2), (-2, -1), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
-        elements.append(payment_table)
-        elements.append(Spacer(1, 30))
+        main_content.append(payment_table)
+        main_content.append(Spacer(1, 30))
 
-        # Add signature section
+        # Signature and Seal section
         signature_data = [
-            ['', 'Authorized Seal'],
-            ['', '_' * 20],
-            ['', ''],
-            ['', 'Authorized Signature'],
-            ['', '_' * 20]
+            ['Authorized Seal', '', 'Authorized Signature'],
+            ['_'*20, '', '_'*20]
         ]
         
-        sig_table = Table(signature_data, colWidths=[available_width*0.7, available_width*0.3])
-        sig_table.setStyle(TableStyle([
+        signature_table = Table(signature_data, colWidths=[available_width/3.0]*3)
+        signature_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
-        elements.append(sig_table)
-        elements.append(Spacer(1, 20))
+        main_content.append(signature_table)
+        main_content.append(Spacer(1, 20))
 
-        # Add digital signature if transaction is successful
+        # Digital Signature and Footer
         if transaction.status:
             try:
                 hash_data = f"{transaction.transaction_id}{transaction.date}{total_amount}".encode()
                 digital_signature = sha256(hash_data).hexdigest()
-                elements.append(Paragraph("Digitally Signed by Public School", styles['Normal']))
-                elements.append(Paragraph(digital_signature, styles['Normal']))
+                main_content.append(Paragraph("Digitally Signed by Public School", ParagraphStyle(
+                    'DigitalSignature',
+                    parent=styles['Normal'],
+                    fontSize=8,
+                    textColor=colors.grey,
+                    alignment=TA_CENTER
+                )))
+                main_content.append(Paragraph(digital_signature, ParagraphStyle(
+                    'DigitalSignature',
+                    parent=styles['Normal'],
+                    fontSize=8,
+                    textColor=colors.grey,
+                    alignment=TA_CENTER
+                )))
             except Exception as e:
                 print(f"Digital signature error: {e}")
 
-        # Add footer
-        elements.append(Spacer(1, 20))
-        elements.append(Paragraph("Thank you for your payment!", styles['Normal']))
-        elements.append(Paragraph("For queries, contact support@publicschool.com", styles['Normal']))
+        # Footer
+        main_content.append(Spacer(1, 10))
+        footer_style = ParagraphStyle(
+            'Footer',
+            parent=styles['Normal'],
+            fontSize=8,
+            textColor=colors.grey,
+            alignment=TA_CENTER
+        )
+        main_content.append(Paragraph("Thank you for your payment!", footer_style))
+        main_content.append(Paragraph("For queries, contact support@publicschool.com", footer_style))
+
+        # Create main table with border
+        main_table = Table([[main_content]], colWidths=[available_width])
+        main_table.setStyle(TableStyle([
+            ('BOX', (0, 0), (-1, -1), 1, colors.black),
+            ('LEFTPADDING', (0, 0), (-1, -1), 20),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 20),
+            ('TOPPADDING', (0, 0), (-1, -1), 20),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 20),
+        ]))
+        
+        elements.append(main_table)
 
         # Build the PDF
         doc.build(elements)
