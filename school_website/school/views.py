@@ -551,6 +551,42 @@ def download_receipt(request, transaction_id):
     ]))
     content.append(payment_table)
 
+    # Add spacer before signature section
+    content.append(Spacer(1, 30))
+
+    # Create signature and seal section
+    signature_style = ParagraphStyle(
+        'SignatureStyle',
+        parent=styles['Normal'],
+        fontSize=10,
+        alignment=TA_CENTER
+    )
+
+    # Create a table for signature and seal
+    signature_data = [
+        ['', ''],  # Empty row for actual signature space
+        ['_____________________', '_____________________'],
+        ['Authorized Signature', 'School Seal']
+    ]
+    
+    signature_table = Table(signature_data, colWidths=[col_width, col_width])
+    signature_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('TOPPADDING', (0, 0), (-1, 0), 40),  # Space for actual signature
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+    ]))
+
+    # Create a wrapper table to position signature table on the right
+    wrapper_data = [[signature_table]]
+    wrapper_table = Table(wrapper_data, colWidths=[available_width])
+    wrapper_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 20),
+    ]))
+    content.append(wrapper_table)
+
     # Footer
     content.append(Spacer(1, 15))
     footer_style = ParagraphStyle(
