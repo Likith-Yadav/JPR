@@ -421,12 +421,17 @@ def download_receipt(request, transaction_id):
         # Create main border table
         main_content = []
         
-        # Add logo
+        # Add logo with proper centering
         try:
             logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
             if os.path.exists(logo_path):
                 logo = Image(logo_path, width=4*inch, height=1*inch)
-                main_content.append(logo)
+                logo_table = Table([[logo]], colWidths=[available_width])
+                logo_table.setStyle(TableStyle([
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ]))
+                main_content.append(logo_table)
         except Exception as e:
             print(f"Logo loading error: {e}")
         
@@ -466,7 +471,6 @@ def download_receipt(request, transaction_id):
             ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
             ('LEFTPADDING', (0, 0), (-1, -1), 6),
             ('RIGHTPADDING', (0, 0), (-1, -1), 6),
             ('TOPPADDING', (0, 0), (-1, -1), 3),
@@ -512,19 +516,18 @@ def download_receipt(request, transaction_id):
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, -1), 10),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
             ('LEFTPADDING', (0, 0), (-1, -1), 6),
             ('RIGHTPADDING', (0, 0), (-1, -1), 6),
             ('TOPPADDING', (0, 0), (-1, -1), 3),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
         main_content.append(payment_table)
-        main_content.append(Spacer(1, 30))
+        main_content.append(Spacer(1, 40))
 
         # Signature and Seal section
         signature_data = [
-            ['Authorized Seal', '', 'Authorized Signature'],
-            ['_'*20, '', '_'*20]
+            ['_'*20, '', '_'*20],  # Lines first
+            ['Authorized Seal', '', 'Authorized Signature'],  # Text below lines
         ]
         
         signature_table = Table(signature_data, colWidths=[available_width/3.0]*3)
@@ -580,6 +583,7 @@ def download_receipt(request, transaction_id):
             ('RIGHTPADDING', (0, 0), (-1, -1), 20),
             ('TOPPADDING', (0, 0), (-1, -1), 20),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 20),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
         ]))
         
         elements.append(main_table)
