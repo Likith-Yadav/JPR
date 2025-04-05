@@ -279,26 +279,36 @@ class TransactionsAdmin(admin.ModelAdmin):
         if not change:
             obj.received_by = request.user.username
             obj.total_amount = 0
+            # Set current time
+            current_time = datetime.now()
+            obj.time = current_time.time()
             
             if obj.payment_mode == 'Cash':
-                from datetime import datetime
-                cash_trans_id = f"CASH-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                cash_trans_id = f"CASH-{current_time.strftime('%Y%m%d%H%M%S')}"
                 obj.transaction_id = cash_trans_id
             elif not obj.transaction_id:
-                from datetime import datetime
-                obj.transaction_id = f"ONLINE-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                obj.transaction_id = f"ONLINE-{current_time.strftime('%Y%m%d%H%M%S')}"
+        
+        # Get the old status before saving
+        old_status = None
+        if change:
+            old_status = Transactions.objects.get(pk=obj.pk).status
         
         super().save_model(request, obj, form, change)
 
-        if obj.status:
+        # Update fee due only if status is True and either:
+        # 1. This is a new transaction (not change)
+        # 2. The status has changed from False to True
+        if obj.status and (not change or old_status != obj.status):
             user_profile = UserProfile.objects.filter(user=obj.user).first()
             if user_profile:
-                user_profile.Fee_Due -= obj.total_amount
-                user_profile.Fee_Due = max(0, user_profile.Fee_Due)
+                # Calculate new fee due
+                new_fee_due = user_profile.Fee_Due - obj.total_amount
+                user_profile.Fee_Due = max(0, new_fee_due)
                 user_profile.save()
                 messages.success(
                     request,
-                    f"User {user_profile.Name}'s fee has been updated successfully."
+                    f"User {user_profile.Name}'s fee has been updated successfully. New fee due: ₹{user_profile.Fee_Due}"
                 )
 
     def download_receipt(self, obj):
