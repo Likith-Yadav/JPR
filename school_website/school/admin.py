@@ -153,13 +153,13 @@ class UserProfileAdmin(admin.ModelAdmin):
         
         # Get one-time fees (all non-tuition fees)
         one_time_fees = all_transactions.filter(
-            ~Q(categories__category='tuition')
+            categories__category__in=['admission', 'application', 'uniform', 'books', 'id_card', 'computer_lab', 'winter_clothes']
         ).distinct().order_by('-date')
 
         # Get all monthly fees (tuition)
         monthly_fees = all_transactions.filter(
             categories__category='tuition'
-        ).order_by('-date')  # Changed to descending order
+        ).order_by('-date')
 
         # Create a list of months with payment status
         current_date = datetime.now().date()

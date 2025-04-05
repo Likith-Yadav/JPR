@@ -141,7 +141,13 @@
                         {% if category.category != 'transport' and category.category != 'others' %}
                             <tr>
                                 <td>{{ transaction.date|date:"d M Y" }}</td>
-                                <td>{{ category.get_category_display }}</td>
+                                <td>
+                                    {% if category.category == 'tuition' %}
+                                        Monthly Tuition Fee
+                                    {% else %}
+                                        {{ category.get_category_display }}
+                                    {% endif %}
+                                </td>
                                 <td>₹{{ category.amount }}</td>
                                 <td>{{ transaction.transaction_id }}</td>
                                 <td>
