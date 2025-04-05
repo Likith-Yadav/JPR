@@ -8,6 +8,7 @@ cmds = ['python -m venv /opt/venv && . /opt/venv/bin/activate && pip install -r 
 cmds = [
     'source /opt/venv/bin/activate',
     'python manage.py collectstatic --noinput',
+    'python setup_db.py',
 ]
 
 [start]
