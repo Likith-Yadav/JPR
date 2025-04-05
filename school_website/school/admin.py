@@ -276,26 +276,6 @@ class TransactionsAdmin(admin.ModelAdmin):
                 fields.remove('total_amount')
         return fields
 
-    def save_related(self, request, form, formsets, change):
-        super().save_related(request, form, formsets, change)
-        obj = form.instance
-        total = sum(category.amount for category in obj.categories.all())
-        obj.total_amount = total
-        obj.save()
-
-        # Update fee due when transaction is successful
-        if obj.status:
-            user_profile = UserProfile.objects.filter(user=obj.user).first()
-            if user_profile:
-                # Calculate new fee due
-                new_fee_due = user_profile.Fee_Due - total
-                user_profile.Fee_Due = max(0, new_fee_due)  # Ensure fee due doesn't go below 0
-                user_profile.save()
-                messages.success(
-                    request,
-                    f"User {user_profile.Name}'s fee has been updated successfully. New fee due: ₹{user_profile.Fee_Due}"
-                )
-
     def save_model(self, request, obj, form, change):
         if not change:  # New transaction
             obj.received_by = request.user.username
@@ -316,12 +296,19 @@ class TransactionsAdmin(admin.ModelAdmin):
         
         super().save_model(request, obj, form, change)
 
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        obj = form.instance
+        total = sum(category.amount for category in obj.categories.all())
+        obj.total_amount = total
+        obj.save()
+
         # Update fee due when transaction is successful
         if obj.status:
             user_profile = UserProfile.objects.filter(user=obj.user).first()
             if user_profile:
                 # Calculate new fee due
-                new_fee_due = user_profile.Fee_Due - obj.total_amount
+                new_fee_due = user_profile.Fee_Due - total
                 user_profile.Fee_Due = max(0, new_fee_due)  # Ensure fee due doesn't go below 0
                 user_profile.save()
                 messages.success(
