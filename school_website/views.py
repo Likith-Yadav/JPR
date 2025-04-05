@@ -20,7 +20,7 @@ def download_receipt(request, transaction_id):
     p.drawString(100, 800, f"Receipt #{transaction.transaction_id}")
     p.drawString(100, 780, f"Date: {transaction.date}")
     p.drawString(100, 760, f"Student: {transaction.student.name}")
-    p.drawString(100, 740, f"Amount: ₹{transaction.amount}")
+    p.drawString(100, 740, f"Amount: ₹{transaction.total_amount}")
     p.drawString(100, 720, f"Payment Mode: {transaction.payment_mode}")
     p.drawString(100, 700, f"Status: {transaction.status}")
     

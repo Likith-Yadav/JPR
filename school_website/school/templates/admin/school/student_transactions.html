@@ -167,7 +167,7 @@
       <tr>
         <td>{{ transaction.date|date:"d M Y" }}</td>
         <td>{{ transaction.category }}</td>
-        <td class="amount">₹{{ transaction.amount }}</td>
+        <td class="amount">₹{{ transaction.total_amount }}</td>
         <td>{{ transaction.transaction_id }}</td>
         <td
           class="{% if transaction.status %}status-paid{% else %}status-unpaid{% endif %}"
@@ -196,7 +196,7 @@
       {% for transaction in monthly_transactions %}
       <tr>
         <td>{{ transaction.month }}</td>
-        <td class="amount">₹{{ transaction.amount|default:"-" }}</td>
+        <td class="amount">₹{{ transaction.total_amount|default:"-" }}</td>
         <td>{{ transaction.transaction_id|default:"-" }}</td>
         <td>{{ transaction.payment_date|default:"-" }}</td>
         <td

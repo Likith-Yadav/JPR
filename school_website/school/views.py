@@ -526,7 +526,7 @@ def download_receipt(request, transaction_id):
                     str(category.description or '')
                 ])
         else:
-            amount = float(transaction.amount or 0)
+            amount = float(transaction.total_amount or 0)
             total_amount = amount
             payment_data.append(['Fee Payment', f"Rs. {amount:,.2f}", ''])
 

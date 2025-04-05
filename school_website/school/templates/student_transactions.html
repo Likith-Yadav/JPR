@@ -52,7 +52,7 @@
           <tr>
             <td>{{ transaction.date }}</td>
             <td>{{ transaction.category }}</td>
-            <td>₹{{ transaction.amount }}</td>
+            <td>₹{{ transaction.total_amount }}</td>
             <td>{{ transaction.transaction_id }}</td>
             <td class="status-{{ transaction.status|lower }}">
               {{ transaction.status }}
@@ -78,13 +78,13 @@
           </tr>
         </thead>
         <tbody>
-          {% for fee in monthly_fees %}
-          <tr class="{% if fee.status == 'Unpaid' %}unpaid-row{% endif %}">
-            <td>{{ fee.month }}</td>
-            <td>{% if fee.amount %}₹{{ fee.amount }}{% else %}-{% endif %}</td>
-            <td>{{ fee.transaction_id|default:"-" }}</td>
-            <td>{{ fee.payment_date|default:"-" }}</td>
-            <td class="status-{{ fee.status|lower }}">{{ fee.status }}</td>
+          {% for month in months %}
+          <tr class="{% if not month.paid %}unpaid-row{% endif %}">
+            <td>{{ month.month }}</td>
+            <td>{% if month.total_amount %}₹{{ month.total_amount }}{% else %}-{% endif %}</td>
+            <td>{{ month.transaction.transaction_id|default:"-" }}</td>
+            <td>{{ month.transaction.date|date:"d M Y"|default:"-" }}</td>
+            <td class="status-{% if month.paid %}paid{% else %}unpaid{% endif %}">{% if month.paid %}Paid{% else %}Unpaid{% endif %}</td>
           </tr>
           {% endfor %}
         </tbody>
