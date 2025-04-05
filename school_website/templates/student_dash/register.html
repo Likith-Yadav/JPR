@@ -223,11 +223,6 @@ form {
         </div>
 
         <div class="form-group">
-            <label for="aadhar_number" class="required">Aadhar Number:</label>
-            <input type="text" id="aadhar_number" name="aadhar_number" required placeholder="Enter your 12-digit Aadhar number" pattern="[0-9]{12}" maxlength="12">
-        </div>
-
-        <div class="form-group">
             <label for="class" class="required">Class:</label>
             <input type="text" id="class" name="class" maxlength="3" required placeholder="e.g., 10A">
         </div>
@@ -245,6 +240,11 @@ form {
         <div class="form-group">
             <label for="alt_number">Alternate Number:</label>
             <input type="text" id="alt_number" name="alt_number" placeholder="Enter an alternate phone number">
+        </div>
+
+        <div class="form-group">
+            <label for="aadhar_number">Aadhar Number</label>
+            <input type="text" class="form-control" id="aadhar_number" name="aadhar_number" maxlength="12" pattern="[0-9]{12}" title="Please enter a valid 12-digit Aadhar number" required>
         </div>
 
         <div class="form-group full-width">

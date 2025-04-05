@@ -93,8 +93,8 @@ class PhoneVerifiedFilter(SimpleListFilter):
             return queryset.exclude(phone_number__regex=r'^\d{10}$').exclude(phone_number__isnull=True)
 
 class UserProfileAdmin(admin.ModelAdmin):
-    search_fields = ('Name', 'aadhar_number', 'registration_number', 'Class', 'phone_number', 'email')
-    list_display = ('get_profile_image', 'Name', 'Class', 'aadhar_number', 'registration_number', 'Fee_Due', 'view_transactions')
+    search_fields = ('Name', 'registration_number', 'Class', 'phone_number', 'email', 'aadhar_number')
+    list_display = ('get_profile_image', 'Name', 'registration_number', 'Class', 'phone_number', 'email', 'Fee_Due', 'view_transactions', 'aadhar_number')
     list_filter = (
         'Class',
         FeeDueRangeFilter,

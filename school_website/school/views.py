@@ -114,16 +114,18 @@ def registerUser(request):
         address = request.POST.get('address')
         aadhar_number = request.POST.get('aadhar_number')
         otp = request.POST.get('otp')
+        
         if str(otp) != str(request.session['otp']):
             messages.error(request, 'Invalid OTP. Please try again.')
             return redirect('register')
+            
         otp_created_time = datetime.fromisoformat(request.session['otp_created_at'])
         if datetime.now() - otp_created_time > timedelta(minutes=10):
             del request.session['otp']
             del request.session['otp_created_at']
             request.session.modified = True
             return JsonResponse({"error": "OTP has expired."}, status=400)
-        # Validate input (add your own validation logic)
+            
         if User.objects.filter(username=username).exists():
             messages.error(request, 'Username already exists.')
             return redirect('register')
@@ -132,15 +134,13 @@ def registerUser(request):
             messages.error(request, 'Email already exists.')
             return redirect('register')
 
-        if aadhar_number and UserProfile.objects.filter(aadhar_number=aadhar_number).exists():
-            messages.error(request, 'Aadhar number already exists.')
-            return redirect('register')
-
         # Create the User object
         user = User.objects.create(
             username=username,
-            password=make_password(password)  # Hash the password
+            password=make_password(password)
         )
+        
+        # Create UserProfile with Aadhar number
         UserProfile.objects.create(
             user=user,
             Name=name,
