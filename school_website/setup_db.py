@@ -42,28 +42,51 @@ def setup_database():
     if data_file.exists():
         print("Loading data from data.json...")
         try:
-            # First, validate the JSON file
-            try:
-                with open(data_file, 'r') as f:
-                    json.load(f)
-                print("Data file is valid JSON")
-            except json.JSONDecodeError as e:
-                print(f"Error: data.json is not valid JSON: {str(e)}")
+            # Try different encodings to read the file
+            encodings = ['utf-8', 'latin-1', 'cp1252']
+            data = None
+            
+            for encoding in encodings:
+                try:
+                    with open(data_file, 'r', encoding=encoding) as f:
+                        data = json.load(f)
+                    print(f"Successfully read data.json with {encoding} encoding")
+                    break
+                except UnicodeDecodeError:
+                    print(f"Failed to read with {encoding} encoding, trying next...")
+                    continue
+                except json.JSONDecodeError as e:
+                    print(f"JSON decode error with {encoding} encoding: {str(e)}")
+                    continue
+            
+            if data is None:
+                print("Failed to read data.json with any encoding")
                 return
             
-            # Try to load the data
-            result = subprocess.run(
-                [sys.executable, "manage.py", "loaddata", str(data_file)],
-                capture_output=True,
-                text=True
-            )
-            
-            if result.returncode != 0:
-                print("Error loading data:")
-                print("stdout:", result.stdout)
-                print("stderr:", result.stderr)
-            else:
-                print("Data loaded successfully!")
+            # Create a temporary file with the correct encoding
+            temp_file = BASE_DIR / "temp_data.json"
+            try:
+                with open(temp_file, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, ensure_ascii=False)
+                
+                # Try to load the data
+                result = subprocess.run(
+                    [sys.executable, "manage.py", "loaddata", str(temp_file)],
+                    capture_output=True,
+                    text=True
+                )
+                
+                if result.returncode != 0:
+                    print("Error loading data:")
+                    print("stdout:", result.stdout)
+                    print("stderr:", result.stderr)
+                else:
+                    print("Data loaded successfully!")
+            finally:
+                # Clean up temporary file
+                if temp_file.exists():
+                    temp_file.unlink()
+                    
         except Exception as e:
             print(f"Error loading data: {str(e)}")
             # Don't exit on data load failure, as the app can still run
