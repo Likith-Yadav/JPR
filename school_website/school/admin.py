@@ -10,6 +10,11 @@ from django import forms
 from django.db.models import Q
 from datetime import datetime, timedelta
 from django.utils.safestring import mark_safe
+from django.urls import reverse
+from django.urls import reverse_lazy
+from django.urls import path
+from django.urls import reverse
+from django.urls import reverse_lazy
 
 admin.site.site_header = "\n"
 admin.site.site_title = "Admin Portal"
@@ -107,15 +112,21 @@ class UserProfileAdmin(admin.ModelAdmin):
     readonly_fields = ('profile_image_preview',)
 
     def get_profile_image(self, obj):
-        if obj.profile_image:
-            return format_html('<img src="{}" width="80" height="80" style="border-radius: 50%; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />', obj.profile_image.url)
-        return format_html('<img src="/static/images/default-profile.png" width="80" height="80" style="border-radius: 50%; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />')
+        try:
+            if obj.profile_image:
+                return format_html('<img src="{}" width="80" height="80" style="border-radius: 50%; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />', obj.profile_image.url)
+            return format_html('<img src="/static/images/default-profile.png" width="80" height="80" style="border-radius: 50%; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />')
+        except Exception as e:
+            return format_html('<img src="/static/images/default-profile.png" width="80" height="80" style="border-radius: 50%; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />')
     get_profile_image.short_description = ''
 
     def profile_image_preview(self, obj):
-        if obj.profile_image:
-            return mark_safe(f'<img src="{obj.profile_image.url}" style="max-height: 100px;"/>')
-        return "No image"
+        try:
+            if obj.profile_image:
+                return mark_safe(f'<img src="{obj.profile_image.url}" style="max-height: 100px;"/>')
+            return "No image"
+        except Exception as e:
+            return "No image"
     profile_image_preview.short_description = 'Profile Image Preview'
 
     fieldsets = (
@@ -139,63 +150,70 @@ class UserProfileAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     def view_transactions(self, obj):
-        return format_html(
-            '<a class="button" href="{}">View Transactions</a>',
-            f'/admin/school/userprofile/transactions/{obj.user.id}/'
-        )
+        try:
+            return format_html(
+                '<a class="button" href="{}">View Transactions</a>',
+                f'/admin/school/userprofile/transactions/{obj.user.id}/'
+            )
+        except Exception as e:
+            return "Error"
     view_transactions.short_description = 'Transactions'
 
     def view_transaction_history(self, request, user_id):
-        user_profile = UserProfile.objects.get(user_id=user_id)
-        
-        # Get all transactions for this user
-        all_transactions = Transactions.objects.filter(user_id=user_id).order_by('-date')
-        
-        # Get one-time fees (only admission and application fees)
-        one_time_fees = all_transactions.filter(
-            categories__category__in=['admission', 'application']
-        ).distinct()
+        try:
+            user_profile = UserProfile.objects.get(user_id=user_id)
+            
+            # Get all transactions for this user
+            all_transactions = Transactions.objects.filter(user_id=user_id).order_by('-date')
+            
+            # Get one-time fees (only admission and application fees)
+            one_time_fees = all_transactions.filter(
+                categories__category__in=['admission', 'application']
+            ).distinct()
 
-        # Get all monthly fees (tuition)
-        monthly_fees = all_transactions.filter(
-            categories__category='tuition'
-        ).order_by('-date')
+            # Get all monthly fees (tuition)
+            monthly_fees = all_transactions.filter(
+                categories__category='tuition'
+            ).order_by('-date')
 
-        # Create a list of months with payment status
-        current_date = datetime.now()
-        months = []
-        for i in range(12):
-            month_date = current_date - timedelta(days=30*i)
-            month_str = month_date.strftime('%B %Y')
-            
-            # Get all transactions for this month
-            month_transactions = all_transactions.filter(
-                date__year=month_date.year,
-                date__month=month_date.month,
-                status=True  # Only count successful transactions
-            )
-            
-            # Calculate total amount for this month (all categories)
-            total_amount = sum(trans.total_amount for trans in month_transactions)
-            
-            # Get the latest transaction for this month
-            latest_transaction = month_transactions.first()
-            
-            months.append({
-                'month': month_str,
-                'paid': bool(latest_transaction),
-                'transaction': latest_transaction,
-                'total_amount': total_amount
-            })
+            # Create a list of months with payment status
+            current_date = datetime.now()
+            months = []
+            for i in range(12):
+                month_date = current_date - timedelta(days=30*i)
+                month_str = month_date.strftime('%B %Y')
+                
+                # Get all transactions for this month
+                month_transactions = all_transactions.filter(
+                    date__year=month_date.year,
+                    date__month=month_date.month,
+                    status=True  # Only count successful transactions
+                )
+                
+                # Calculate total amount for this month (all categories)
+                total_amount = sum(trans.total_amount for trans in month_transactions)
+                
+                # Get the latest transaction for this month
+                latest_transaction = month_transactions.first()
+                
+                months.append({
+                    'month': month_str,
+                    'paid': bool(latest_transaction),
+                    'transaction': latest_transaction,
+                    'total_amount': total_amount
+                })
 
-        context = {
-            'user_profile': user_profile,
-            'one_time_fees': one_time_fees,
-            'months': months,
-            'opts': self.model._meta,
-            'all_transactions': all_transactions,
-        }
-        return render(request, 'admin/transaction_history.html', context)
+            context = {
+                'user_profile': user_profile,
+                'one_time_fees': one_time_fees,
+                'months': months,
+                'opts': self.model._meta,
+                'all_transactions': all_transactions,
+            }
+            return render(request, 'admin/transaction_history.html', context)
+        except Exception as e:
+            messages.error(request, f"Error loading transaction history: {str(e)}")
+            return redirect('admin:school_userprofile_changelist')
 
     class Media:
         css = {
@@ -243,60 +261,13 @@ class TransactionsAdmin(admin.ModelAdmin):
         }
         js = ('admin/js/transaction_admin.js',)
 
-    def get_fields(self, request, obj=None):
-        fields = list(super().get_fields(request, obj))
-        if obj is None:  # This is an add form
-            if 'payment_mode' in fields:
-                if 'transaction_id' in fields and request.POST.get('payment_mode') == 'Cash':
-                    fields.remove('transaction_id')
-            if 'total_amount' in fields:
-                fields.remove('total_amount')
-        return fields
-
-    def save_related(self, request, form, formsets, change):
-        super().save_related(request, form, formsets, change)
-        obj = form.instance
-        total = sum(category.amount for category in obj.categories.all())
-        obj.total_amount = total
-        obj.save()
-
-    def save_model(self, request, obj, form, change):
-        if not change:
-            obj.received_by = request.user.username
-            obj.total_amount = 0
-            
-            if obj.payment_mode == 'Cash':
-                from datetime import datetime
-                cash_trans_id = f"CASH-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-                obj.transaction_id = cash_trans_id
-            elif not obj.transaction_id:
-                from datetime import datetime
-                obj.transaction_id = f"ONLINE-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        
-        super().save_model(request, obj, form, change)
-
-        if obj.status:
-            user_profile = UserProfile.objects.filter(user=obj.user).first()
-            if user_profile:
-                user_profile.Fee_Due -= obj.total_amount
-                user_profile.Fee_Due = max(0, user_profile.Fee_Due)
-                user_profile.save()
-                messages.success(
-                    request,
-                    f"User {user_profile.Name}'s fee has been updated successfully."
-                )
-
-    def download_receipt(self, obj):
-        if obj.status:
-            return format_html(
-                '<a class="button" href="/download_receipt/{transaction_id}/" target="_blank">Download Receipt</a>',
-                transaction_id=obj.transaction_id
-            )
-        return "N/A"
-    download_receipt.short_description = 'Receipt'
-
     def get_student_name(self, obj):
-        return obj.user.profile.Name
+        try:
+            if hasattr(obj.user, 'profile'):
+                return obj.user.profile.Name
+            return "Unknown"
+        except Exception as e:
+            return "Unknown"
     get_student_name.short_description = 'Student Name'
     get_student_name.admin_order_field = 'user__profile__Name'
 

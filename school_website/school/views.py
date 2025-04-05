@@ -150,7 +150,7 @@ def registerUser(request):
             alt_number=alt_number,
             address=address,
             email=email,
-            aadhar_number=aadhar_number
+            aadhar_number=aadhar_number if aadhar_number else None
         )
 
         messages.success(request, 'Registration successful! You can now log in.')
@@ -163,22 +163,27 @@ def dashboard(request,username):
     if request.user.is_superuser==False:
         if str(request.user) != username:
             return redirect('login')
-    user = User.objects.get(username=username)
-    user_profile = UserProfile.objects.get(user=user)
-    user_data = {
-        'name': user_profile.Name,
-        'aadhar_number': user_profile.aadhar_number or 'Not Set',
-        'class': user_profile.Class,
-        'father_name': user_profile.Father_name,
-        'phone_number': user_profile.phone_number,
-        'alt_number': user_profile.alt_number,
-        'address': user_profile.address,
-        'fee_due': user_profile.Fee_Due,
-        'registration_number': user_profile.registration_number,
-        'profile_image': user_profile.profile_image.url if user_profile.profile_image else None,
-    }
-    transactions = Transactions.objects.filter(user=user).order_by('-date')
-    return render(request,'student_dash/dashboard.html',{"student":user_data,'transactions': transactions})
+    try:
+        user = User.objects.get(username=username)
+        user_profile = UserProfile.objects.get(user=user)
+        user_data = {
+            'name': user_profile.Name,
+            'aadhar_number': user_profile.aadhar_number if hasattr(user_profile, 'aadhar_number') and user_profile.aadhar_number else 'Not Set',
+            'class': user_profile.Class,
+            'father_name': user_profile.Father_name,
+            'phone_number': user_profile.phone_number,
+            'alt_number': user_profile.alt_number,
+            'address': user_profile.address,
+            'fee_due': user_profile.Fee_Due,
+            'registration_number': user_profile.registration_number,
+            'profile_image': user_profile.profile_image.url if user_profile.profile_image else None,
+        }
+        transactions = Transactions.objects.filter(user=user).order_by('-date')
+        return render(request,'student_dash/dashboard.html',{"student":user_data,'transactions': transactions})
+    except Exception as e:
+        print(f"Dashboard error: {e}")
+        messages.error(request, 'Error loading dashboard. Please try again.')
+        return redirect('login')
 
 def gallery(request):
     return render(request, 'gallery.html')
