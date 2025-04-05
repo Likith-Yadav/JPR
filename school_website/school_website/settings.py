@@ -30,7 +30,7 @@ except ImportError:
 SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key-here')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     'jpr-production.up.railway.app',
@@ -79,19 +79,13 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR,"templates")],
-        'APP_DIRS': False,  # Changed to False since we're using custom loaders
+        'APP_DIRS': True,  # Enable app directories template loading
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-            ],
-            'loaders': [
-                ('django.template.loaders.cached.Loader', [
-                    'django.template.loaders.filesystem.Loader',
-                    'django.template.loaders.app_directories.Loader',
-                ]),
             ],
         },
     },
@@ -163,11 +157,14 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Whitenoise settings
-WHITENOISE_USE_FINDERS = False
-WHITENOISE_AUTOREFRESH = False
-WHITENOISE_MANIFEST_STRICT = True
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
+WHITENOISE_MANIFEST_STRICT = False
 WHITENOISE_INDEX_FILE = True
 WHITENOISE_ENABLE_COMPRESSION = True  # Enable compression
+
+# Add far-future expiration headers for static files
+WHITENOISE_MAX_AGE = 31536000  # 1 year in seconds
 
 # Cache settings
 CACHES = {
@@ -187,15 +184,15 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 
 # Security Settings
-SECURE_SSL_REDIRECT = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_HSTS_SECONDS = 31536000  # 1 year
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
+SECURE_SSL_REDIRECT = False
+SECURE_PROXY_SSL_HEADER = None
+SECURE_HSTS_SECONDS = 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 
 # Domain settings
 DOMAIN = 'jprpublicschool.com'
@@ -227,17 +224,4 @@ if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
 # Email settings
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
-
-# Browser cache settings
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
-
-# Add far-future expiration headers for static files
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-# Add cache control headers
-WHITENOISE_MAX_AGE = 31536000  # 1 year in seconds
 
