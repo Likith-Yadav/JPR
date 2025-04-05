@@ -162,7 +162,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         ).order_by('date')  # Changed to ascending order
 
         # Create a list of months with payment status
-        current_date = datetime.now()
+        current_date = datetime.now().date()  # Convert to date object
         months = []
         
         # Get the earliest transaction date
