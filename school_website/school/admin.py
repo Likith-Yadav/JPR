@@ -245,18 +245,37 @@ class TransactionsAdminForm(forms.ModelForm):
         return cleaned_data
 
 class TransactionsAdmin(admin.ModelAdmin):
-    form = TransactionsAdminForm
+    list_display = ('user', 'total_amount', 'date', 'time', 'transaction_id', 'status', 'payment_mode')
+    list_filter = ('status', 'payment_mode', 'date')
+    search_fields = ('user__Name', 'transaction_id')
+    readonly_fields = ('transaction_id',)
     inlines = [PaymentCategoryInline]
-    search_fields = ['transaction_id', 'user__username', 'date']
-    list_display = ['get_student_name', 'total_amount', 'date', 'time', 'transaction_id', 'status', 'payment_mode', 'received_by', 'download_receipt']
-    list_filter = ['status', 'payment_mode', 'date']
-    raw_id_fields = ['user']
     
-    class Media:
-        css = {
-            'all': ('admin/css/custom_admin.css',)
-        }
-        js = ('admin/js/transaction_admin.js',)
+    def save_model(self, request, obj, form, change):
+        if not change:  # New transaction
+            obj.received_by = request.user
+            obj.transaction_id = f"TXN{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        
+        # Save the transaction first to ensure it exists
+        super().save_model(request, obj, form, change)
+        
+        # Update fee due based on transaction status
+        if obj.status == 'completed':
+            # Get the current fee due
+            current_fee_due = obj.user.fee_due or 0
+            
+            if change:  # Updating existing transaction
+                old_transaction = Transactions.objects.get(pk=obj.pk)
+                # Subtract old amount and add new amount
+                obj.user.fee_due = current_fee_due - old_transaction.total_amount + obj.total_amount
+            else:  # New transaction
+                obj.user.fee_due = current_fee_due - obj.total_amount
+                
+            obj.user.save()
+            
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        # The total amount will be calculated in the model's save method
 
     def get_fields(self, request, obj=None):
         fields = list(super().get_fields(request, obj))
@@ -267,67 +286,6 @@ class TransactionsAdmin(admin.ModelAdmin):
             if 'total_amount' in fields:
                 fields.remove('total_amount')
         return fields
-
-    def save_related(self, request, form, formsets, change):
-        super().save_related(request, form, formsets, change)
-        obj = form.instance
-        total = sum(category.amount for category in obj.categories.all())
-        obj.total_amount = total
-        obj.save()
-
-    def save_model(self, request, obj, form, change):
-        if not change:
-            obj.received_by = request.user.username
-            obj.total_amount = 0
-            # Set current time
-            current_time = datetime.now()
-            obj.time = current_time.time()
-            
-            if obj.payment_mode == 'Cash':
-                cash_trans_id = f"CASH-{current_time.strftime('%Y%m%d%H%M%S')}"
-                obj.transaction_id = cash_trans_id
-            elif not obj.transaction_id:
-                obj.transaction_id = f"ONLINE-{current_time.strftime('%Y%m%d%H%M%S')}"
-        
-        # Get the old status and total_amount before saving
-        old_status = None
-        old_total_amount = 0
-        if change:
-            old_transaction = Transactions.objects.get(pk=obj.pk)
-            old_status = old_transaction.status
-            old_total_amount = old_transaction.total_amount
-        
-        # Save the model first to ensure all related objects are saved
-        super().save_model(request, obj, form, change)
-        
-        # Calculate total amount from categories
-        total = sum(category.amount for category in obj.categories.all())
-        obj.total_amount = total
-        obj.save()
-
-        # Update fee due if transaction is successful
-        if obj.status:
-            user_profile = UserProfile.objects.filter(user=obj.user).first()
-            if user_profile:
-                if change and old_status != obj.status:
-                    # If status changed from False to True
-                    user_profile.Fee_Due = max(0, user_profile.Fee_Due - obj.total_amount)
-                elif not change:
-                    # If this is a new transaction
-                    user_profile.Fee_Due = max(0, user_profile.Fee_Due - obj.total_amount)
-                elif old_total_amount != obj.total_amount:
-                    # If amount changed
-                    if old_status:
-                        # If old transaction was successful, add back its amount
-                        user_profile.Fee_Due += old_total_amount
-                    # Subtract new amount
-                    user_profile.Fee_Due = max(0, user_profile.Fee_Due - obj.total_amount)
-                
-                user_profile.save()
-                messages.success(
-                    request,
-                    f"User {user_profile.Name}'s fee has been updated successfully. New fee due: ₹{user_profile.Fee_Due}"
-                )
 
     def download_receipt(self, obj):
         if obj.status:

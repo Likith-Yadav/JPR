@@ -72,5 +72,27 @@ class Transactions(models.Model):
             self.date = datetime.now().date()
         if not self.time:
             self.time = datetime.now().time()
+            
+        # Calculate total amount from categories if this is a new transaction
+        if not self.pk or 'total_amount' in self.get_dirty_fields():
+            total = sum(category.amount for category in self.categories.all())
+            self.total_amount = total
+            
         super().save(*args, **kwargs)
+    
+    def get_dirty_fields(self):
+        """
+        Returns a dictionary of fields that have been modified.
+        """
+        if not self.pk:  # New instance
+            return {}
+            
+        old_instance = Transactions.objects.get(pk=self.pk)
+        dirty_fields = {}
+        
+        for field in self._meta.fields:
+            if getattr(self, field.name) != getattr(old_instance, field.name):
+                dirty_fields[field.name] = getattr(self, field.name)
+                
+        return dirty_fields
     
