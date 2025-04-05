@@ -505,6 +505,8 @@ def download_receipt(request, transaction_id):
             spaceAfter=10
         )))
 
+        
+
         # Payment Details Table with fixed total amount
         payment_data = [['Category', 'Amount', 'Description']]
         
