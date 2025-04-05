@@ -289,22 +289,34 @@ class TransactionsAdmin(admin.ModelAdmin):
             elif not obj.transaction_id:
                 obj.transaction_id = f"ONLINE-{current_time.strftime('%Y%m%d%H%M%S')}"
         
-        # Get the old status before saving
+        # Get the old status and total_amount before saving
         old_status = None
+        old_total_amount = 0
         if change:
-            old_status = Transactions.objects.get(pk=obj.pk).status
+            old_transaction = Transactions.objects.get(pk=obj.pk)
+            old_status = old_transaction.status
+            old_total_amount = old_transaction.total_amount
         
         super().save_model(request, obj, form, change)
 
-        # Update fee due only if status is True and either:
-        # 1. This is a new transaction (not change)
+        # Update fee due if:
+        # 1. This is a new successful transaction
         # 2. The status has changed from False to True
-        if obj.status and (not change or old_status != obj.status):
+        # 3. The total amount has changed
+        if obj.status and (not change or old_status != obj.status or old_total_amount != obj.total_amount):
             user_profile = UserProfile.objects.filter(user=obj.user).first()
             if user_profile:
-                # Calculate new fee due
-                new_fee_due = user_profile.Fee_Due - obj.total_amount
-                user_profile.Fee_Due = max(0, new_fee_due)
+                # If this is a status change from False to True, subtract the amount
+                if change and old_status != obj.status:
+                    user_profile.Fee_Due = max(0, user_profile.Fee_Due - obj.total_amount)
+                # If this is a new transaction or amount change
+                elif not change or old_total_amount != obj.total_amount:
+                    # If old transaction was successful, add back its amount
+                    if change and old_status:
+                        user_profile.Fee_Due += old_total_amount
+                    # Subtract new amount
+                    user_profile.Fee_Due = max(0, user_profile.Fee_Due - obj.total_amount)
+                
                 user_profile.save()
                 messages.success(
                     request,
