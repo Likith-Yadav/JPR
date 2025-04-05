@@ -159,42 +159,52 @@ class UserProfileAdmin(admin.ModelAdmin):
         # Get all monthly fees (tuition)
         monthly_fees = all_transactions.filter(
             categories__category='tuition'
-        ).order_by('date')  # Changed to ascending order
+        ).order_by('date')
 
         # Create a list of months with payment status
-        current_date = datetime.now().date()  # Convert to date object
+        current_date = datetime.now().date()
         months = []
         
         # Get the earliest transaction date
-        earliest_transaction = monthly_fees.order_by('date').first()
+        earliest_transaction = all_transactions.order_by('date').first()
         if earliest_transaction:
             start_date = earliest_transaction.date
         else:
-            start_date = current_date - timedelta(days=365)  # Default to 1 year ago
+            start_date = current_date - timedelta(days=365)
             
         # Generate months from earliest to current
         current_month = start_date.replace(day=1)
         while current_month <= current_date:
             month_str = current_month.strftime('%B %Y')
             
-            # Get all transactions for this month
-            month_transactions = monthly_fees.filter(
+            # Get all transactions for this month (both tuition and one-time)
+            month_transactions = all_transactions.filter(
                 date__year=current_month.year,
                 date__month=current_month.month,
                 status=True  # Only count successful transactions
             )
             
-            # Calculate total amount for this month
+            # Calculate total amount for this month including both tuition and one-time fees
             total_amount = sum(trans.total_amount for trans in month_transactions)
             
             # Get the latest transaction for this month
             latest_transaction = month_transactions.order_by('-date').first()
             
+            # Get all categories for this month's transactions
+            month_categories = []
+            for trans in month_transactions:
+                for category in trans.categories.all():
+                    month_categories.append({
+                        'category': category.get_category_display(),
+                        'amount': category.amount
+                    })
+            
             months.append({
                 'month': month_str,
                 'paid': bool(latest_transaction),
                 'transaction': latest_transaction,
-                'total_amount': total_amount
+                'total_amount': total_amount,
+                'categories': month_categories
             })
             
             # Move to next month
