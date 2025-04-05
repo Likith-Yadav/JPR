@@ -354,21 +354,27 @@ def verify_payment(request):
             api_response = Cashfree().PGOrderFetchPayments(x_api_version, str(order_id), None)
             res = serialize_payment_entity(api_response.data[0])
             print(res)
-            Transactions.objects.create(
-            user=request.user,
-            amount=res['payment_amount'],
-            transaction_id=res['cf_payment_id'],
-            status=True if res['payment_status'] == 'SUCCESS' else False,
-            payment_mode = "Online-"+str(list(res['payment_method']['actual_instance'].keys())[0]),
-            date = res['payment_time']
+            # Create transaction with total_amount instead of amount
+            transaction = Transactions.objects.create(
+                user=request.user,
+                total_amount=res['payment_amount'],
+                transaction_id=res['cf_payment_id'],
+                status=True if res['payment_status'] == 'SUCCESS' else False,
+                payment_mode="Online-"+str(list(res['payment_method']['actual_instance'].keys())[0]),
+                date=res['payment_time'].date(),
+                time=res['payment_time'].time()
             )
+            
             if res['payment_status'] == 'SUCCESS':
-                UserProfile.objects.filter(user=request.user).update(Fee_Due=UserProfile.objects.get(user=request.user).Fee_Due - res['payment_amount'])
+                # Update fee due using the correct field name
+                user_profile = UserProfile.objects.get(user=request.user)
+                user_profile.Fee_Due = user_profile.Fee_Due - res['payment_amount']
+                user_profile.save()
+                
             return JsonResponse(res, status=200)
         except Exception as e:
             print(e)
-        return JsonResponse({"error": "Error fetching order status."}, status=400)
-    
+            return JsonResponse({"error": "Error fetching order status."}, status=400)
 
 def update_fee(request):
     if request.method == 'POST':
