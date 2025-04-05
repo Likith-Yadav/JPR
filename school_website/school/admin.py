@@ -297,22 +297,28 @@ class TransactionsAdmin(admin.ModelAdmin):
             old_status = old_transaction.status
             old_total_amount = old_transaction.total_amount
         
+        # Save the model first to ensure all related objects are saved
         super().save_model(request, obj, form, change)
+        
+        # Calculate total amount from categories
+        total = sum(category.amount for category in obj.categories.all())
+        obj.total_amount = total
+        obj.save()
 
-        # Update fee due if:
-        # 1. This is a new successful transaction
-        # 2. The status has changed from False to True
-        # 3. The total amount has changed
-        if obj.status and (not change or old_status != obj.status or old_total_amount != obj.total_amount):
+        # Update fee due if transaction is successful
+        if obj.status:
             user_profile = UserProfile.objects.filter(user=obj.user).first()
             if user_profile:
-                # If this is a status change from False to True, subtract the amount
                 if change and old_status != obj.status:
+                    # If status changed from False to True
                     user_profile.Fee_Due = max(0, user_profile.Fee_Due - obj.total_amount)
-                # If this is a new transaction or amount change
-                elif not change or old_total_amount != obj.total_amount:
-                    # If old transaction was successful, add back its amount
-                    if change and old_status:
+                elif not change:
+                    # If this is a new transaction
+                    user_profile.Fee_Due = max(0, user_profile.Fee_Due - obj.total_amount)
+                elif old_total_amount != obj.total_amount:
+                    # If amount changed
+                    if old_status:
+                        # If old transaction was successful, add back its amount
                         user_profile.Fee_Due += old_total_amount
                     # Subtract new amount
                     user_profile.Fee_Due = max(0, user_profile.Fee_Due - obj.total_amount)
