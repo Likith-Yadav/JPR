@@ -159,10 +159,10 @@ class UserProfileAdmin(admin.ModelAdmin):
         # Get all monthly fees (tuition)
         monthly_fees = all_transactions.filter(
             categories__category='tuition'
-        ).order_by('date')  # Changed to ascending order
+        ).order_by('-date')  # Changed to descending order
 
         # Create a list of months with payment status
-        current_date = datetime.now().date()  # Convert to date object
+        current_date = datetime.now().date()
         months = []
         
         # Get the earliest transaction date

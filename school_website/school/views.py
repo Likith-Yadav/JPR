@@ -354,7 +354,8 @@ def verify_payment(request):
             api_response = Cashfree().PGOrderFetchPayments(x_api_version, str(order_id), None)
             res = serialize_payment_entity(api_response.data[0])
             print(res)
-            # Create transaction with total_amount instead of amount
+            
+            # Create transaction
             transaction = Transactions.objects.create(
                 user=request.user,
                 total_amount=res['payment_amount'],
@@ -365,8 +366,15 @@ def verify_payment(request):
                 time=res['payment_time'].time()
             )
             
+            # Create payment category for tuition
             if res['payment_status'] == 'SUCCESS':
-                # Update fee due using the correct field name
+                PaymentCategory.objects.create(
+                    transaction=transaction,
+                    category='tuition',
+                    amount=res['payment_amount']
+                )
+                
+                # Update fee due
                 user_profile = UserProfile.objects.get(user=request.user)
                 user_profile.Fee_Due = user_profile.Fee_Due - res['payment_amount']
                 user_profile.save()
