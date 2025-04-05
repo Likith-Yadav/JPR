@@ -20,17 +20,20 @@ class UserProfile(models.Model):
         return self.Name
 
 class PaymentCategory(models.Model):
-    CATEGORY_CHOICES = [
-        ('tuition', 'Tuition'),
-        ('transport', 'Transport'),
-        ('book', 'Book'),
+    CATEGORY_CHOICES = (
+        ('admission', 'Admission Fee'),
+        ('application', 'Application Fee'),
+        ('tuition', 'Tuition Fee'),
         ('uniform', 'Uniform'),
-        ('competitive', 'Competitive'),
-        ('celebrations', 'Celebrations'),
-        ('admission', 'Admission'),
-        ('application', 'Application'),
+        ('books', 'Books'),
+        ('id_card', 'ID Card'),
+        ('computer_lab', 'Computer Lab Training'),
+        ('competitive', 'Competitive Classes'),
+        ('hostel', 'Hostel Fee'),
+        ('winter_clothes', 'Winter Clothes'),
+        ('transport', 'Transport'),
         ('others', 'Others'),
-    ]
+    )
     
     transaction = models.ForeignKey('Transactions', on_delete=models.CASCADE, related_name='categories')
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
@@ -38,7 +41,7 @@ class PaymentCategory(models.Model):
     description = models.TextField(blank=True, null=True, help_text='Required for Others category')
 
     def __str__(self):
-        return f"{self.get_category_display()} - ₹{self.amount}"
+        return f"{self.get_category_display()} - {self.amount}"
 
     class Meta:
         verbose_name_plural = "Payment Categories"
