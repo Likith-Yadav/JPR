@@ -18,9 +18,8 @@
                 <tr>
                     <th>Category</th>
                     <th>Status</th>
-                    <th>Amount</th>
-                    <th>Date</th>
-                    <th>Receipt</th>
+                    <th>Total Amount</th>
+                    <th>Payment History</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,11 +27,15 @@
                 <tr class="{% if fee.status == 'Not Paid' %}not-paid{% endif %}">
                     <td>{{ fee.category }}</td>
                     <td>{{ fee.status }}</td>
-                    <td>{% if fee.amount %}₹{{ fee.amount }}{% else %}-{% endif %}</td>
-                    <td>{% if fee.date %}{{ fee.date|date:"d M Y" }}{% else %}-{% endif %}</td>
+                    <td>{% if fee.total_amount %}₹{{ fee.total_amount }}{% else %}-{% endif %}</td>
                     <td>
-                        {% if fee.transaction %}
-                            <a href="{% url 'admin:download_receipt' fee.transaction.transaction_id %}" class="button" target="_blank">Download</a>
+                        {% if fee.payments %}
+                            {% for payment in fee.payments %}
+                                <div class="payment-entry">
+                                    ₹{{ payment.amount }} ({{ payment.date|date:"d M Y" }})
+                                    <a href="{% url 'admin:download_receipt' payment.transaction.transaction_id %}" class="button" target="_blank">Receipt</a>
+                                </div>
+                            {% endfor %}
                         {% else %}
                             -
                         {% endif %}
@@ -136,9 +139,18 @@
         color: white;
         text-decoration: none;
         border-radius: 4px;
+        margin-left: 8px;
     }
     .button:hover {
         background-color: #417690;
+    }
+    .payment-entry {
+        margin: 4px 0;
+        padding: 4px 0;
+        border-bottom: 1px dashed #eee;
+    }
+    .payment-entry:last-child {
+        border-bottom: none;
     }
 </style>
 {% endblock %} 

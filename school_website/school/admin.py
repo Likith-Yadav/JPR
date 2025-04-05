@@ -153,22 +153,32 @@ class UserProfileAdmin(admin.ModelAdmin):
         
         # Get one-time fees (all non-tuition fees)
         one_time_fees = []
-        one_time_categories = ['admission', 'application', 'uniform', 'books', 'id_card', 'computer_lab', 'competitive', 'hostel', 'winter_clothes']
+        one_time_categories = ['admission', 'application', 'uniform', 'books', 'id_card', 'computer_lab', 'competitive', 'hostel', 'winter_clothes', 'transport', 'others']
         
         # Check each one-time fee category
         for category in one_time_categories:
-            # Get the latest transaction for this category (if any)
-            latest_transaction = all_transactions.filter(
+            # Get all transactions for this category
+            category_transactions = all_transactions.filter(
                 categories__category=category,
                 status=True  # Only count successful transactions
-            ).order_by('-date', '-time').first()
+            ).order_by('-date', '-time')
+            
+            # Get all successful payments for this category
+            payments = []
+            for trans in category_transactions:
+                category_payment = trans.categories.filter(category=category).first()
+                if category_payment:
+                    payments.append({
+                        'transaction': trans,
+                        'amount': category_payment.amount,
+                        'date': trans.date
+                    })
             
             one_time_fees.append({
                 'category': dict(PaymentCategory.CATEGORY_CHOICES)[category],
-                'status': 'Paid' if latest_transaction else 'Not Paid',
-                'transaction': latest_transaction,
-                'amount': latest_transaction.total_amount if latest_transaction else None,
-                'date': latest_transaction.date if latest_transaction else None
+                'status': 'Paid' if payments else 'Not Paid',
+                'payments': payments,  # Include all payments
+                'total_amount': sum(payment['amount'] for payment in payments) if payments else None
             })
 
         # Get all monthly fees (tuition)
