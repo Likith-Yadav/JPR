@@ -8,8 +8,7 @@ cmds = ['python -m venv /opt/venv && . /opt/venv/bin/activate && pip install -r 
 cmds = [
     'source /opt/venv/bin/activate',
     'python manage.py collectstatic --noinput',
-    'python setup_db.py',
 ]
 
 [start]
-cmd = 'source /opt/venv/bin/activate && gunicorn school_website.wsgi:application --bind 0.0.0.0:$PORT' 
+cmd = 'source /opt/venv/bin/activate && python setup_db.py && gunicorn school_website.wsgi:application --bind 0.0.0.0:$PORT' 
