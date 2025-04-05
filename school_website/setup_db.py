@@ -10,6 +10,9 @@ import sys
 import time
 import json
 from pathlib import Path
+from django.core.management import call_command
+from django.core.wsgi import get_wsgi_application
+import dj_database_url
 
 def setup_database():
     """Set up the database and migrate data."""
@@ -18,6 +21,29 @@ def setup_database():
     # Get the base directory
     BASE_DIR = Path(__file__).resolve().parent
     
+    # Print database configuration (without sensitive info)
+    db_url = os.getenv('DATABASE_URL', '')
+    if db_url:
+        print("Database URL found")
+        db_config = dj_database_url.parse(db_url)
+        print(f"Database type: {db_config.get('ENGINE', 'unknown')}")
+        print(f"Database name: {db_config.get('NAME', 'unknown')}")
+        print(f"Database host: {db_config.get('HOST', 'unknown')}")
+        print(f"Database port: {db_config.get('PORT', 'unknown')}")
+    else:
+        print("WARNING: DATABASE_URL not found in environment!")
+    
+    # Set up Django environment
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'school_website.settings')
+    
+    try:
+        print("Initializing Django...")
+        application = get_wsgi_application()
+        print("Django initialized successfully")
+    except Exception as e:
+        print(f"Error initializing Django: {str(e)}")
+        sys.exit(1)
+    
     # Try to run migrations with retries
     max_retries = 5
     retry_delay = 5
@@ -25,10 +51,10 @@ def setup_database():
     for attempt in range(max_retries):
         try:
             print(f"Attempting to run migrations (attempt {attempt + 1}/{max_retries})...")
-            subprocess.run([sys.executable, "manage.py", "migrate"], check=True)
+            call_command('migrate')
             print("Migrations completed successfully!")
             break
-        except subprocess.CalledProcessError as e:
+        except Exception as e:
             print(f"Migration attempt {attempt + 1} failed: {str(e)}")
             if attempt < max_retries - 1:
                 print(f"Retrying in {retry_delay} seconds...")
@@ -69,19 +95,9 @@ def setup_database():
                 with open(temp_file, 'w', encoding='utf-8') as f:
                     json.dump(data, f, ensure_ascii=False)
                 
-                # Try to load the data
-                result = subprocess.run(
-                    [sys.executable, "manage.py", "loaddata", str(temp_file)],
-                    capture_output=True,
-                    text=True
-                )
-                
-                if result.returncode != 0:
-                    print("Error loading data:")
-                    print("stdout:", result.stdout)
-                    print("stderr:", result.stderr)
-                else:
-                    print("Data loaded successfully!")
+                # Try to load the data with natural keys to preserve relationships
+                call_command('loaddata', str(temp_file), natural_foreign=True, natural_primary=True)
+                print("Data loaded successfully!")
             finally:
                 # Clean up temporary file
                 if temp_file.exists():

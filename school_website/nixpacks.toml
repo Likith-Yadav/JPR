@@ -11,4 +11,12 @@ cmds = [
 ]
 
 [start]
-cmd = 'source /opt/venv/bin/activate && python setup_db.py && gunicorn school_website.wsgi:application --bind 0.0.0.0:$PORT' 
+cmd = '''
+source /opt/venv/bin/activate
+echo "Waiting for PostgreSQL to start..."
+while ! pg_isready -h $PGHOST -p $PGPORT -U $PGUSER; do
+    sleep 1
+done
+echo "PostgreSQL is ready!"
+python setup_db.py && gunicorn school_website.wsgi:application --bind 0.0.0.0:$PORT
+''' 
