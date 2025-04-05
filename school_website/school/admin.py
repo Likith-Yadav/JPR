@@ -156,19 +156,6 @@ class UserProfileAdmin(admin.ModelAdmin):
             ~Q(categories__category='tuition')
         ).distinct().order_by('-date')
 
-        # Prepare one-time fees data with categories
-        one_time_fees_data = []
-        for transaction in one_time_fees:
-            categories = transaction.categories.all()
-            category_names = ", ".join([cat.get_category_display() for cat in categories if cat.category != 'tuition'])
-            one_time_fees_data.append({
-                'date': transaction.date,
-                'category': category_names,
-                'total_amount': transaction.total_amount,
-                'transaction_id': transaction.transaction_id,
-                'status': 'Paid' if transaction.status else 'Unpaid'
-            })
-
         # Get all monthly fees (tuition)
         monthly_fees = all_transactions.filter(
             categories__category='tuition'
@@ -218,7 +205,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 
         context = {
             'user_profile': user_profile,
-            'one_time_fees': one_time_fees_data,
+            'one_time_fees': one_time_fees,
             'months': months,
             'opts': self.model._meta,
             'all_transactions': all_transactions,
