@@ -440,7 +440,7 @@ def download_receipt(request, transaction_id):
             print(f"Logo loading error: {e}")
         
         # Add school contact information
-        contact_info = "JPR Public School | At- Boudhithaika, Khaira, Jamui,Bihar-811317 | Phone: +91-9591500542,+91-8147274829 | Email: jpreducation.info@gmail.com | Website: www.jprschool.com"
+        contact_info = "JPR Public School | At- Boudhithaika, Khaira, Jamui,Bihar-811317 | Phone: +91-9591500542,+91-8147274829 | Email: jpreducation.info@gmail.com | Website: www.jprpublicschool.com"
         
         main_content.append(Paragraph(contact_info, ParagraphStyle(
             'ContactInfo',
