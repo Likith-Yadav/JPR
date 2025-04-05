@@ -235,13 +235,14 @@ class TransactionsAdminForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
-            'time': forms.TimeInput(attrs={'type': 'time', 'format': '%H:%M'}),
+            'time': forms.TimeInput(attrs={'type': 'time'}),
         }
 
     def clean(self):
         cleaned_data = super().clean()
-        if self.instance.pk:  # If this is an existing transaction
-            return cleaned_data
+        # Ensure time is set
+        if not cleaned_data.get('time'):
+            cleaned_data['time'] = datetime.now().time()
         return cleaned_data
 
     def __init__(self, *args, **kwargs):
@@ -249,6 +250,7 @@ class TransactionsAdminForm(forms.ModelForm):
         if not self.instance.pk:  # If this is a new transaction
             from datetime import datetime
             self.initial['time'] = datetime.now().time()
+            self.initial['date'] = datetime.now().date()
 
 class TransactionsAdmin(admin.ModelAdmin):
     form = TransactionsAdminForm
@@ -281,8 +283,21 @@ class TransactionsAdmin(admin.ModelAdmin):
         obj.total_amount = total
         obj.save()
 
+        # Update fee due when transaction is successful
+        if obj.status:
+            user_profile = UserProfile.objects.filter(user=obj.user).first()
+            if user_profile:
+                # Calculate new fee due
+                new_fee_due = user_profile.Fee_Due - total
+                user_profile.Fee_Due = max(0, new_fee_due)  # Ensure fee due doesn't go below 0
+                user_profile.save()
+                messages.success(
+                    request,
+                    f"User {user_profile.Name}'s fee has been updated successfully. New fee due: ₹{user_profile.Fee_Due}"
+                )
+
     def save_model(self, request, obj, form, change):
-        if not change:
+        if not change:  # New transaction
             obj.received_by = request.user.username
             obj.total_amount = 0
             
@@ -294,7 +309,7 @@ class TransactionsAdmin(admin.ModelAdmin):
                 from datetime import datetime
                 obj.transaction_id = f"ONLINE-{datetime.now().strftime('%Y%m%d%H%M%S')}"
         
-        # Set the current time if time is not set
+        # Always ensure time is set
         if not obj.time:
             from datetime import datetime
             obj.time = datetime.now().time()

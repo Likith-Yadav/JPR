@@ -475,7 +475,7 @@ def download_receipt(request, transaction_id):
             ['Student Name', str(user_profile.Name or 'N/A')],
             ['Registration Number', str(user_profile.registration_number or 'N/A')],
             ['Class', str(user_profile.Class or 'N/A')],
-            ['Date', transaction.date.strftime('%d-%m-%Y %I:%M %p') if transaction.date else 'N/A'],
+            ['Date', f"{transaction.date.strftime('%d-%m-%Y')} {transaction.time.strftime('%I:%M %p')}" if transaction.date and transaction.time else 'N/A'],
             ['Payment Mode', str(transaction.payment_mode or 'N/A')],
             ['Transaction ID', str(transaction.transaction_id or 'N/A')],
             ['Received By', str(transaction.received_by or 'N/A')]
