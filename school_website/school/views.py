@@ -38,6 +38,7 @@ from reportlab.platypus import Image
 import os
 from django.conf import settings
 from django.core.mail import send_mail
+from django.contrib.auth.hashers import make_password
 
 warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 # Create your views here.
@@ -193,26 +194,35 @@ def otp_api(request):
                 pass
             else:
                 return JsonResponse({'message': 'Email not found!'}, status=400)
-        my_email = "rishi71213@gmail.com"
-        password = ""
-        gmail_server = "smtp.gmail.com"
-        gmail_port = 587
-        my_server = smtplib.SMTP(gmail_server,gmail_port)
-        my_server.ehlo()
-        my_server.starttls()
-        my_server.login(my_email,password)
+        
+        # Generate OTP
         otp = randint(100000,999999)
         request.session['otp'] = otp
         request.session['otp_created_at'] = datetime.now().isoformat()
         request.session.modified = True
+        
+        # Prepare email message
         if action == 'forgot':
-            m = "Your OTP for password change is "+str(otp)+" This OTP is valid for 10 minutes.Don't share this OTP with anyone."
+            subject = "Password Reset OTP"
+            message = f"Your OTP for password change is {otp}. This OTP is valid for 10 minutes. Don't share this OTP with anyone."
         else:
-            m = "Hello, Welcome to School! Your OTP is "+str(otp)+" This OTP is valid for 10 minutes.Don't share this OTP with anyone."
-        msg1 = MIMEText(m, "plain", "utf-8")
-        my_server.sendmail(from_addr=my_email,to_addrs=to_email, msg=msg1.as_string())
-        print("Email sent!")
-        return JsonResponse({'message': 'OTP sent!'}, status=201)
+            subject = "Registration OTP"
+            message = f"Hello, Welcome to School! Your OTP is {otp}. This OTP is valid for 10 minutes. Don't share this OTP with anyone."
+        
+        try:
+            # Send email using Django's send_mail
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [to_email],
+                fail_silently=False,
+            )
+            print("Email sent!")
+            return JsonResponse({'message': 'OTP sent!'}, status=201)
+        except Exception as e:
+            print(f"Error sending email: {str(e)}")
+            return JsonResponse({'message': 'Error sending OTP!'}, status=500)
     else:
         print("Problem sending email")
     return JsonResponse({'message': 'OTP not sent!'}, status=400)

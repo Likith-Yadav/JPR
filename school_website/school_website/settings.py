@@ -208,25 +208,26 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False  # Make sure SSL is off when using TLS
 EMAIL_TIMEOUT = 30  # Add timeout
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 
-# Print email configuration for debugging (remove in production)
-print(f"Email Configuration:")
-print(f"Host: {EMAIL_HOST}")
-print(f"Port: {EMAIL_PORT}")
-print(f"TLS: {EMAIL_USE_TLS}")
-print(f"User: {EMAIL_HOST_USER}")
-print(f"Password length: {len(EMAIL_HOST_PASSWORD) if EMAIL_HOST_PASSWORD else 0}")
+# Only print email configuration in development
+if DEBUG:
+    print(f"Email Configuration:")
+    print(f"Host: {EMAIL_HOST}")
+    print(f"Port: {EMAIL_PORT}")
+    print(f"TLS: {EMAIL_USE_TLS}")
+    print(f"User: {EMAIL_HOST_USER}")
+    print(f"Password length: {len(EMAIL_HOST_PASSWORD) if EMAIL_HOST_PASSWORD else 0}")
 
-# Remove default values for security
-if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
-    print("Warning: Email credentials not set in environment variables!")
-    print("Make sure to set EMAIL_HOST_USER and EMAIL_HOST_PASSWORD in Railway variables")
+    # Remove default values for security
+    if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+        print("Warning: Email credentials not set in environment variables!")
+        print("Make sure to set EMAIL_HOST_USER and EMAIL_HOST_PASSWORD in Railway variables")
 
 # Email settings
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-SERVER_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or 'noreply@jprpublicschool.com'
+SERVER_EMAIL = EMAIL_HOST_USER or 'noreply@jprpublicschool.com'
 
 # Browser cache settings
 STATICFILES_DIRS = [
