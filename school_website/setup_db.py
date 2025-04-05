@@ -8,6 +8,7 @@ import os
 import subprocess
 import sys
 import time
+import json
 from pathlib import Path
 
 def setup_database():
@@ -41,9 +42,29 @@ def setup_database():
     if data_file.exists():
         print("Loading data from data.json...")
         try:
-            subprocess.run([sys.executable, "manage.py", "loaddata", str(data_file)], check=True)
-            print("Data loaded successfully!")
-        except subprocess.CalledProcessError as e:
+            # First, validate the JSON file
+            try:
+                with open(data_file, 'r') as f:
+                    json.load(f)
+                print("Data file is valid JSON")
+            except json.JSONDecodeError as e:
+                print(f"Error: data.json is not valid JSON: {str(e)}")
+                return
+            
+            # Try to load the data
+            result = subprocess.run(
+                [sys.executable, "manage.py", "loaddata", str(data_file)],
+                capture_output=True,
+                text=True
+            )
+            
+            if result.returncode != 0:
+                print("Error loading data:")
+                print("stdout:", result.stdout)
+                print("stderr:", result.stderr)
+            else:
+                print("Data loaded successfully!")
+        except Exception as e:
             print(f"Error loading data: {str(e)}")
             # Don't exit on data load failure, as the app can still run
     else:
