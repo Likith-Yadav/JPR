@@ -440,23 +440,17 @@ def download_receipt(request, transaction_id):
             print(f"Logo loading error: {e}")
         
         # Add school contact information
-        contact_info = [
-            "JPR Public School",
-            "At- Boudhithaika, Khaira, Jamui,Bihar-811317",
-            "Phone: +91-9591500542,+91-8147274829 | Email: jpreducation.info@gmail.com",
-            "Website: www.jprschool.com"
-        ]
+        contact_info = "JPR Public School | At- Boudhithaika, Khaira, Jamui,Bihar-811317 | Phone: +91-9591500542,+91-8147274829 | Email: jpreducation.info@gmail.com | Website: www.jprschool.com"
         
-        for info in contact_info:
-            main_content.append(Paragraph(info, ParagraphStyle(
-                'ContactInfo',
-                parent=styles['Normal'],
-                fontSize=9,
-                alignment=TA_CENTER,
-                spaceAfter=2
-            )))
+        main_content.append(Paragraph(contact_info, ParagraphStyle(
+            'ContactInfo',
+            parent=styles['Normal'],
+            fontSize=9,
+            alignment=TA_CENTER,
+            spaceAfter=2
+        )))
         
-        main_content.append(Spacer(1, 10))  # Reduced spacing
+        main_content.append(Spacer(1, 10))
         
         # Add horizontal line
         line_table = Table([['']], colWidths=[available_width - 30])
@@ -465,7 +459,7 @@ def download_receipt(request, transaction_id):
         ]))
         main_content.append(line_table)
         
-        main_content.append(Spacer(1, 10))  # Reduced spacing
+        main_content.append(Spacer(1, 10))
 
         # Transaction Receipt Header
         main_content.append(Paragraph("Fee Receipt", ParagraphStyle(
@@ -473,15 +467,15 @@ def download_receipt(request, transaction_id):
             parent=styles['Heading1'],
             fontSize=14,
             alignment=TA_CENTER,
-            spaceAfter=10  # Reduced spacing
+            spaceAfter=10
         )))
 
-        # Student Details
+        # Student Details with fixed date format
         student_data = [
             ['Student Name', str(user_profile.Name or 'N/A')],
             ['Registration Number', str(user_profile.registration_number or 'N/A')],
             ['Class', str(user_profile.Class or 'N/A')],
-            ['Date', transaction.date.strftime('%d %b %Y %H:%M') if transaction.date else 'N/A'],
+            ['Date', transaction.date.strftime('%d-%m-%Y %I:%M %p') if transaction.date else 'N/A'],
             ['Payment Mode', str(transaction.payment_mode or 'N/A')],
             ['Transaction ID', str(transaction.transaction_id or 'N/A')],
             ['Received By', str(transaction.received_by or 'N/A')]
@@ -500,7 +494,7 @@ def download_receipt(request, transaction_id):
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
         main_content.append(student_table)
-        main_content.append(Spacer(1, 10))  # Reduced spacing
+        main_content.append(Spacer(1, 10))
 
         # Payment Details Header
         main_content.append(Paragraph("Payment Details", ParagraphStyle(
@@ -511,7 +505,7 @@ def download_receipt(request, transaction_id):
             spaceAfter=10
         )))
 
-        # Payment Details Table
+        # Payment Details Table with fixed total amount
         payment_data = [['Category', 'Amount', 'Description']]
         
         # Handle categories safely
@@ -521,23 +515,27 @@ def download_receipt(request, transaction_id):
         except Exception as e:
             print(f"Error fetching categories: {e}")
 
+        total_amount = 0
         if categories:
             for category in categories:
+                amount = float(category.amount or 0)
+                total_amount += amount
                 payment_data.append([
                     str(category.get_category_display() or 'N/A'),
-                    f"Rs. {category.amount or 0}",
+                    f"Rs. {amount:,.2f}",
                     str(category.description or '')
                 ])
         else:
-            payment_data.append(['Fee Payment', f"Rs. {transaction.amount or 0}", ''])
+            amount = float(transaction.amount or 0)
+            total_amount = amount
+            payment_data.append(['Fee Payment', f"Rs. {amount:,.2f}", ''])
 
         # Add total amount and fee due
-        total_amount = transaction.amount if hasattr(transaction, 'amount') else 0
-        fee_due = user_profile.Fee_Due if hasattr(user_profile, 'Fee_Due') else 0
+        fee_due = float(user_profile.Fee_Due or 0)
         
         payment_data.extend([
-            ['Total Amount', f"Rs. {total_amount}", ''],
-            ['Fee Due', f"Rs. {fee_due}", '']
+            ['Total Amount', f"Rs. {total_amount:,.2f}", ''],
+            ['Fee Due', f"Rs. {fee_due:,.2f}", '']
         ])
 
         payment_table = Table(payment_data, colWidths=[(available_width - 30)/3.0]*3)
@@ -552,12 +550,12 @@ def download_receipt(request, transaction_id):
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
         main_content.append(payment_table)
-        main_content.append(Spacer(1, 60))  # Space before signature
+        main_content.append(Spacer(1, 60))
 
         # Single Signature and Seal section at bottom right
         signature_data = [
             ['', '_'*25],
-            ['', 'Authorized Signature & Seal']
+            ['', 'Authorized Seal & Signature']
         ]
         
         signature_table = Table(signature_data, colWidths=[available_width*0.7, available_width*0.3 - 30])
@@ -594,7 +592,7 @@ def download_receipt(request, transaction_id):
                 print(f"Digital signature error: {e}")
 
         # Footer
-        main_content.append(Spacer(1, 10))  # Reduced spacing
+        main_content.append(Spacer(1, 10))
         footer_style = ParagraphStyle(
             'Footer',
             parent=styles['Normal'],
@@ -609,10 +607,10 @@ def download_receipt(request, transaction_id):
         main_table = Table([[main_content]], colWidths=[available_width])
         main_table.setStyle(TableStyle([
             ('BOX', (0, 0), (-1, -1), 1, colors.black),
-            ('LEFTPADDING', (0, 0), (-1, -1), 15),  # Reduced padding
-            ('RIGHTPADDING', (0, 0), (-1, -1), 15),  # Reduced padding
-            ('TOPPADDING', (0, 0), (-1, -1), 15),  # Reduced padding
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 15),  # Reduced padding
+            ('LEFTPADDING', (0, 0), (-1, -1), 15),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 15),
+            ('TOPPADDING', (0, 0), (-1, -1), 15),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 15),
             ('BACKGROUND', (0, 0), (-1, -1), colors.white),
         ]))
         
