@@ -152,9 +152,24 @@ class UserProfileAdmin(admin.ModelAdmin):
         all_transactions = Transactions.objects.filter(user_id=user_id)
         
         # Get one-time fees (all non-tuition fees)
-        one_time_fees = all_transactions.filter(
-            ~Q(categories__category='tuition')
-        ).distinct().order_by('-date')
+        one_time_fees = []
+        one_time_categories = ['admission', 'application', 'uniform', 'books', 'id_card', 'computer_lab', 'competitive', 'hostel', 'winter_clothes']
+        
+        # Check each one-time fee category
+        for category in one_time_categories:
+            # Get the latest transaction for this category (if any)
+            latest_transaction = all_transactions.filter(
+                categories__category=category,
+                status=True  # Only count successful transactions
+            ).order_by('-date', '-time').first()
+            
+            one_time_fees.append({
+                'category': dict(PaymentCategory.CATEGORY_CHOICES)[category],
+                'status': 'Paid' if latest_transaction else 'Not Paid',
+                'transaction': latest_transaction,
+                'amount': latest_transaction.total_amount if latest_transaction else None,
+                'date': latest_transaction.date if latest_transaction else None
+            })
 
         # Get all monthly fees (tuition)
         monthly_fees = all_transactions.filter(
@@ -162,7 +177,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         ).order_by('date')  # Changed to ascending order
 
         # Create a list of months with payment status
-        current_date = datetime.now().date()  # Convert to date object
+        current_date = datetime.now().date()
         months = []
         
         # Get the earliest transaction date
@@ -188,7 +203,7 @@ class UserProfileAdmin(admin.ModelAdmin):
             total_amount = sum(trans.total_amount for trans in month_transactions)
             
             # Get the latest transaction for this month
-            latest_transaction = month_transactions.order_by('-date').first()
+            latest_transaction = month_transactions.order_by('-date', '-time').first()
             
             months.append({
                 'month': month_str,
