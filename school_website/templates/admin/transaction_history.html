@@ -124,7 +124,7 @@
     </div>
 
     <div class="section">
-        <div class="section-title">One-Time Fees (Admission & Application)</div>
+        <div class="section-title">One-Time Fees</div>
         <table class="fees-table">
             <thead>
                 <tr>
@@ -138,10 +138,10 @@
             <tbody>
                 {% for transaction in one_time_fees %}
                     {% for category in transaction.categories.all %}
-                        {% if category.category == 'admission' or category.category == 'application' %}
+                        {% if category.category == 'admission' or category.category == 'application' or category.category == 'uniform' or category.category == 'books' or category.category == 'id_card' or category.category == 'computer_lab' or category.category == 'winter_clothes' %}
                             <tr>
                                 <td>{{ transaction.date|date:"d M Y" }}</td>
-                                <td>{{ category.category|title }}</td>
+                                <td>{{ category.get_category_display }}</td>
                                 <td>₹{{ category.amount }}</td>
                                 <td>{{ transaction.transaction_id }}</td>
                                 <td>
