@@ -112,6 +112,7 @@ def registerUser(request):
         phone_number = request.POST.get('phone_number')
         alt_number = request.POST.get('alt_number')
         address = request.POST.get('address')
+        aadhar_number = request.POST.get('aadhar_number')
         otp = request.POST.get('otp')
         if str(otp) != str(request.session['otp']):
             messages.error(request, 'Invalid OTP. Please try again.')
@@ -131,6 +132,10 @@ def registerUser(request):
             messages.error(request, 'Email already exists.')
             return redirect('register')
 
+        if aadhar_number and UserProfile.objects.filter(aadhar_number=aadhar_number).exists():
+            messages.error(request, 'Aadhar number already exists.')
+            return redirect('register')
+
         # Create the User object
         user = User.objects.create(
             username=username,
@@ -144,7 +149,8 @@ def registerUser(request):
             phone_number=phone_number,
             alt_number=alt_number,
             address=address,
-            email=email
+            email=email,
+            aadhar_number=aadhar_number
         )
 
         messages.success(request, 'Registration successful! You can now log in.')
@@ -160,9 +166,8 @@ def dashboard(request,username):
     user = User.objects.get(username=username)
     user_profile = UserProfile.objects.get(user=user)
     user_data = {
-        'username': user.username,
-        'email': user_profile.email,
         'name': user_profile.Name,
+        'aadhar_number': user_profile.aadhar_number or 'Not Set',
         'class': user_profile.Class,
         'father_name': user_profile.Father_name,
         'phone_number': user_profile.phone_number,

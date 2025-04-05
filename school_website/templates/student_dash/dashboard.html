@@ -419,10 +419,10 @@
 
         <div class="details">
             <div>
-                <strong>Username:</strong> {{ student.username }}
+                <strong>Name:</strong> {{ student.name }}
             </div>
             <div>
-                <strong>Email:</strong> {{ student.email }}
+                <strong>Aadhar Number:</strong> {{ student.aadhar_number }}
             </div>
             <div>
                 <strong>Father's Name:</strong> {{ student.father_name }}
@@ -484,7 +484,7 @@
     <div class="popup" id="popup">
         <h3>Enter Payment Amount</h3>
         <h4>Student Name: {{ student.name }}</h4>
-        <h4>User Name: {{ student.username }}</h4>
+        <h4>Aadhar Number: {{ student.aadhar_number }}</h4>
         <h4>Fee Due: {{ student.fee_due }}</h4>
         <input type="text" id="amount" placeholder="Enter amount" />
         <div class="button-container">
