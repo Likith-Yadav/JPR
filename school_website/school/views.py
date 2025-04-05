@@ -112,20 +112,17 @@ def registerUser(request):
         phone_number = request.POST.get('phone_number')
         alt_number = request.POST.get('alt_number')
         address = request.POST.get('address')
-        aadhar_number = request.POST.get('aadhar_number')
         otp = request.POST.get('otp')
-        
         if str(otp) != str(request.session['otp']):
             messages.error(request, 'Invalid OTP. Please try again.')
             return redirect('register')
-            
         otp_created_time = datetime.fromisoformat(request.session['otp_created_at'])
         if datetime.now() - otp_created_time > timedelta(minutes=10):
             del request.session['otp']
             del request.session['otp_created_at']
             request.session.modified = True
             return JsonResponse({"error": "OTP has expired."}, status=400)
-            
+        # Validate input (add your own validation logic)
         if User.objects.filter(username=username).exists():
             messages.error(request, 'Username already exists.')
             return redirect('register')
@@ -137,10 +134,8 @@ def registerUser(request):
         # Create the User object
         user = User.objects.create(
             username=username,
-            password=make_password(password)
+            password=make_password(password)  # Hash the password
         )
-        
-        # Create UserProfile with Aadhar number
         UserProfile.objects.create(
             user=user,
             Name=name,
@@ -149,8 +144,7 @@ def registerUser(request):
             phone_number=phone_number,
             alt_number=alt_number,
             address=address,
-            email=email,
-            aadhar_number=aadhar_number if aadhar_number else None
+            email=email
         )
 
         messages.success(request, 'Registration successful! You can now log in.')
@@ -163,27 +157,23 @@ def dashboard(request,username):
     if request.user.is_superuser==False:
         if str(request.user) != username:
             return redirect('login')
-    try:
-        user = User.objects.get(username=username)
-        user_profile = UserProfile.objects.get(user=user)
-        user_data = {
-            'name': user_profile.Name,
-            'aadhar_number': user_profile.aadhar_number if hasattr(user_profile, 'aadhar_number') and user_profile.aadhar_number else 'Not Set',
-            'class': user_profile.Class,
-            'father_name': user_profile.Father_name,
-            'phone_number': user_profile.phone_number,
-            'alt_number': user_profile.alt_number,
-            'address': user_profile.address,
-            'fee_due': user_profile.Fee_Due,
-            'registration_number': user_profile.registration_number,
-            'profile_image': user_profile.profile_image.url if user_profile.profile_image else None,
-        }
-        transactions = Transactions.objects.filter(user=user).order_by('-date')
-        return render(request,'student_dash/dashboard.html',{"student":user_data,'transactions': transactions})
-    except Exception as e:
-        print(f"Dashboard error: {e}")
-        messages.error(request, 'Error loading dashboard. Please try again.')
-        return redirect('login')
+    user = User.objects.get(username=username)
+    user_profile = UserProfile.objects.get(user=user)
+    user_data = {
+        'username': user.username,
+        'email': user_profile.email,
+        'name': user_profile.Name,
+        'class': user_profile.Class,
+        'father_name': user_profile.Father_name,
+        'phone_number': user_profile.phone_number,
+        'alt_number': user_profile.alt_number,
+        'address': user_profile.address,
+        'fee_due': user_profile.Fee_Due,
+        'registration_number': user_profile.registration_number,
+        'profile_image': user_profile.profile_image.url if user_profile.profile_image else None,
+    }
+    transactions = Transactions.objects.filter(user=user).order_by('-date')
+    return render(request,'student_dash/dashboard.html',{"student":user_data,'transactions': transactions})
 
 def gallery(request):
     return render(request, 'gallery.html')
@@ -449,6 +439,23 @@ def download_receipt(request, transaction_id):
         except Exception as e:
             print(f"Logo loading error: {e}")
         
+        # Add school contact information
+        contact_info = [
+            "JPR Public School",
+            "At- Boudhithaika, Khaira, Jamui,Bihar-811317",
+            "Phone: +91-9591500542,+91-8147274829 | Email: jpreducation.info@gmail.com",
+            "Website: www.jprschool.com"
+        ]
+        
+        for info in contact_info:
+            main_content.append(Paragraph(info, ParagraphStyle(
+                'ContactInfo',
+                parent=styles['Normal'],
+                fontSize=9,
+                alignment=TA_CENTER,
+                spaceAfter=2
+            )))
+        
         main_content.append(Spacer(1, 10))  # Reduced spacing
         
         # Add horizontal line
@@ -596,7 +603,7 @@ def download_receipt(request, transaction_id):
             alignment=TA_CENTER
         )
         main_content.append(Paragraph("Thank you for your payment!", footer_style))
-        main_content.append(Paragraph("For queries, contact support@publicschool.com", footer_style))
+        main_content.append(Paragraph("For queries, contact jpreducation.info@gmail.com", footer_style))
 
         # Create main table with border
         main_table = Table([[main_content]], colWidths=[available_width])

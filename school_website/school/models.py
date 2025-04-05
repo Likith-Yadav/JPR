@@ -15,7 +15,6 @@ class UserProfile(models.Model):
     address = models.TextField(blank=True, null=True)
     registration_number = models.CharField(max_length=20, unique=True, null=True, blank=True, help_text="Student's unique registration number")
     profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
-    aadhar_number = models.CharField(max_length=12, blank=True, null=True)
 
     def __str__(self):
         return self.Name
