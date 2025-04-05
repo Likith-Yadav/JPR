@@ -10,8 +10,6 @@ import sys
 import time
 import json
 from pathlib import Path
-import django
-from django.conf import settings
 
 def setup_database():
     """Set up the database and migrate data."""
@@ -19,13 +17,6 @@ def setup_database():
     
     # Get the base directory
     BASE_DIR = Path(__file__).resolve().parent
-    
-    # Set up Django environment
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'school_website.settings')
-    django.setup()
-    
-    # Import models after Django setup
-    from school.models import Transactions
     
     # Try to run migrations with retries
     max_retries = 5
@@ -45,11 +36,6 @@ def setup_database():
             else:
                 print("Max retries reached. Exiting...")
                 sys.exit(1)
-    
-    # Check if database already has data
-    if Transactions.objects.exists():
-        print("Database already contains data. Skipping data load.")
-        return
     
     # Check if we have data to load
     data_file = BASE_DIR / "data.json"

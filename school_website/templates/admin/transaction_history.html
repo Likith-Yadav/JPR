@@ -138,7 +138,7 @@
             <tbody>
                 {% for transaction in one_time_fees %}
                     {% for category in transaction.categories.all %}
-                        {% if category.category != 'transport' and category.category != 'others' %}
+                        {% if category.category == 'admission' or category.category == 'application' or category.category == 'uniform' or category.category == 'books' or category.category == 'id_card' or category.category == 'computer_lab' or category.category == 'winter_clothes' %}
                             <tr>
                                 <td>{{ transaction.date|date:"d M Y" }}</td>
                                 <td>{{ category.get_category_display }}</td>
@@ -164,7 +164,7 @@
     </div>
 
     <div class="section">
-        <div class="section-title">Monthly Fee History</div>
+        <div class="section-title">Monthly Fee History (Tuition)</div>
         <table class="fees-table">
             <thead>
                 <tr>
@@ -173,7 +173,6 @@
                     <th>Transaction ID</th>
                     <th>Payment Date</th>
                     <th>Status</th>
-                    <th>Details</th>
                 </tr>
             </thead>
             <tbody>
@@ -206,25 +205,6 @@
                                 <span class="status-paid">Paid</span>
                             {% else %}
                                 <span class="status-unpaid">Unpaid</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if month.paid %}
-                                <div class="payment-details">
-                                    {% if month.monthly_payments %}
-                                        <div>Tuition: ₹{{ month.monthly_payments.first.total_amount }}</div>
-                                    {% endif %}
-                                    {% if month.one_time_payments %}
-                                        <div>One-time Fees:</div>
-                                        {% for payment in month.one_time_payments %}
-                                            {% for category in payment.categories.all %}
-                                                <div>- {{ category.get_category_display }}: ₹{{ category.amount }}</div>
-                                            {% endfor %}
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
-                            {% else %}
-                                -
                             {% endif %}
                         </td>
                     </tr>

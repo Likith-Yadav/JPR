@@ -4,11 +4,10 @@
   <head>
     {% block scr %}{% endblock scr %}
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <title>{% block title %}JPR Public School{% endblock title %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>
+      {% block title %}JPR Public School{% endblock title %}
+    </title>
 
     <!-- Google Fonts -->
     <link
@@ -1497,15 +1496,15 @@
       {% endblock extrastyles %}
     </style>
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const logoContainer = document.querySelector(".logo-container");
-
+      document.addEventListener('DOMContentLoaded', function() {
+        const logoContainer = document.querySelector('.logo-container');
+        
         // Hide loading animation when content starts loading
-        window.addEventListener("load", function () {
-          logoContainer.classList.add("hidden");
+        window.addEventListener('load', function() {
+          logoContainer.classList.add('hidden');
           // Remove the container after animation completes
           setTimeout(() => {
-            logoContainer.style.display = "none";
+            logoContainer.style.display = 'none';
           }, 500);
         });
       });
@@ -1558,11 +1557,7 @@
             class="slide"
             alt="School Campus"
           />
-          <img
-            src="{% static 'images/Staff.jpg' %}"
-            class="slide"
-            alt="School Staff"
-          />
+          <img src="{% static 'images/Staff.jpg' %}" class="slide" alt="School Staff" />
           <img
             src="{% static 'images/School Management And Staff.jpg' %}"
             class="slide"
@@ -1627,10 +1622,10 @@
         <div class="welcome-message">
           <h2>Welcome to JPR Public School</h2>
           <p>
-            At JPR Public School, we believe in nurturing young minds through
-            innovative education and holistic development. Our commitment to
-            excellence and values creates an environment where students thrive
-            and grow into future leaders.
+            At JPR Public School, we believe in nurturing young minds
+            through innovative education and holistic development. Our
+            commitment to excellence and values creates an environment where
+            students thrive and grow into future leaders.
           </p>
         </div>
 
@@ -1956,36 +1951,38 @@
       <!-- About Hero Section -->
       <div class="hero-banner" id="about-hero-banner">
         <div class="slideshow-container">
-          <img
-            src="{% static 'images/school.jpeg' %}"
-            class="slide active"
-            alt="School Building"
-          />
-          <img
-            src="{% static 'images/Assembly.JPG' %}"
-            class="slide"
-            alt="Students in Class"
-          />
-          <img
-            src="{% static 'images/school events.JPG' %}"
-            class="slide"
-            alt="School Campus"
-          />
-          <img
-            src="{% static 'images/Staff.jpg' %}"
-            class="slide"
-            alt="School Staff"
-          />
-          <img
-            src="{% static 'images/School Management And Staff.jpg' %}"
-            class="slide"
-            alt="School Management And Staff"
-          />
-          <img
-            src="{% static 'images/computer lab.JPG' %}"
-            class="slide"
-            alt="School Activities"
-          />
+          <div class="slide-wrapper">
+            <img
+              src="{% static 'images/amit sir.jpg' %}"
+              class="slide active"
+              alt="Chairman"
+            />
+            <div class="slide-caption active">Sri. Amit Kumar - Chairman</div>
+          </div>
+          <div class="slide-wrapper">
+            <img
+              src="{% static 'images/Principal.JPG' %}"
+              class="slide"
+              alt="Ms. Srisha Balan"
+            />
+            <div class="slide-caption">Ms. Srisha Balan - Principal</div>
+          </div>
+          <div class="slide-wrapper">
+            <img
+              src="{% static 'images/entrepreneur.jpg' %}"
+              class="slide"
+              alt="B.D. Mandal"
+            />
+            <div class="slide-caption">B.D. Mandal - Entrepreneur</div>
+          </div>
+          <div class="slide-wrapper">
+            <img
+              src="{% static 'images/mentor.jpg' %}"
+              class="slide"
+              alt="Sachchidanand Mandal"
+            />
+            <div class="slide-caption">Sachchidanand Mandal - Mentor</div>
+          </div>
         </div>
         <div class="content">
           <h1 class="headline">About JPR Public School</h1>
@@ -2305,9 +2302,9 @@
             <p>
               His passion for teaching led him to drop offers from the largest
               IT companies to start his own venture, what's today known as JPR
-              Public School. He looks for a better world through students by
-              contributing to the field of education, particularly working for
-              underprivileged children.
+              Public School. He looks for a better world through
+              students by contributing to the field of education, particularly
+              working for underprivileged children.
             </p>
           </div>
           <div class="leadership-image">
@@ -2525,8 +2522,8 @@
               <div class="timeline-year">1995</div>
               <div class="timeline-title">Foundation</div>
               <p>
-                Establishment of JPR Public School with a commitment to quality
-                education and holistic development.
+                Establishment of JPR Public School with a commitment to
+                quality education and holistic development.
               </p>
             </div>
           </div>

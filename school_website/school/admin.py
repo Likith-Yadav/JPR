@@ -159,14 +159,14 @@ class UserProfileAdmin(admin.ModelAdmin):
         # Get all monthly fees (tuition)
         monthly_fees = all_transactions.filter(
             categories__category='tuition'
-        ).order_by('-date')
+        ).order_by('date')  # Changed to ascending order
 
         # Create a list of months with payment status
-        current_date = datetime.now().date()
+        current_date = datetime.now().date()  # Convert to date object
         months = []
         
         # Get the earliest transaction date
-        earliest_transaction = all_transactions.order_by('date').first()
+        earliest_transaction = monthly_fees.order_by('date').first()
         if earliest_transaction:
             start_date = earliest_transaction.date
         else:
@@ -177,36 +177,24 @@ class UserProfileAdmin(admin.ModelAdmin):
         while current_month <= current_date:
             month_str = current_month.strftime('%B %Y')
             
-            # Get all transactions for this month (including one-time fees)
-            month_transactions = all_transactions.filter(
+            # Get all transactions for this month
+            month_transactions = monthly_fees.filter(
                 date__year=current_month.year,
                 date__month=current_month.month,
                 status=True  # Only count successful transactions
             )
             
-            # Calculate total amount for this month including all fees
+            # Calculate total amount for this month
             total_amount = sum(trans.total_amount for trans in month_transactions)
             
             # Get the latest transaction for this month
             latest_transaction = month_transactions.order_by('-date').first()
             
-            # Get all one-time fees paid in this month
-            one_time_payments = month_transactions.filter(
-                ~Q(categories__category='tuition')
-            ).distinct()
-            
-            # Get all monthly fees (tuition) paid in this month
-            monthly_payments = month_transactions.filter(
-                categories__category='tuition'
-            ).distinct()
-            
             months.append({
                 'month': month_str,
                 'paid': bool(latest_transaction),
                 'transaction': latest_transaction,
-                'total_amount': total_amount,
-                'one_time_payments': one_time_payments,
-                'monthly_payments': monthly_payments
+                'total_amount': total_amount
             })
             
             # Move to next month
