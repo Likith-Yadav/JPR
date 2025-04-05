@@ -419,12 +419,10 @@
 
         <div class="details">
             <div>
-                <strong>Name:</strong>
-                <span>{{ student.name }}</span>
+                <strong>Name:</strong> {{ student.name }}
             </div>
             <div>
-                <strong>Aadhar Number:</strong>
-                <span>{{ student.aadhar_number }}</span>
+                <strong>Aadhar Number:</strong> {{ student.aadhar_number }}
             </div>
             <div>
                 <strong>Father's Name:</strong> {{ student.father_name }}
@@ -437,14 +435,6 @@
             </div>
             <div>
                 <strong>Address:</strong> {{ student.address }}
-            </div>
-            <div>
-                <strong>Class:</strong>
-                <span>{{ student.class }}</span>
-            </div>
-            <div>
-                <strong>Fee Due:</strong>
-                <span>₹{{ student.fee_due }}</span>
             </div>
         </div>
         <a class="pay-button" id="renderBtn">Pay Fee</a>
