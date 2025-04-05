@@ -50,7 +50,7 @@
         <tbody>
           {% for transaction in one_time_fees %}
           <tr>
-            <td>{{ transaction.date }}</td>
+            <td>{{ transaction.date|date:"d M Y" }}</td>
             <td>{{ transaction.category }}</td>
             <td>₹{{ transaction.total_amount }}</td>
             <td>{{ transaction.transaction_id }}</td>
