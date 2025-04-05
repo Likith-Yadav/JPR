@@ -459,7 +459,7 @@ def download_receipt(request, transaction_id):
         ]))
         main_content.append(line_table)
         
-        main_content.append(Spacer(1, 10))
+        main_content.append(Spacer(1, 5))
 
         # Transaction Receipt Header
         main_content.append(Paragraph("Fee Receipt", ParagraphStyle(
