@@ -152,34 +152,9 @@ class UserProfileAdmin(admin.ModelAdmin):
         all_transactions = Transactions.objects.filter(user_id=user_id)
         
         # Get one-time fees (all non-tuition fees)
-        one_time_fees = []
-        one_time_categories = ['admission', 'application', 'uniform', 'books', 'id_card', 'computer_lab', 'competitive', 'hostel', 'winter_clothes', 'transport', 'others']
-        
-        # Check each one-time fee category
-        for category in one_time_categories:
-            # Get all transactions for this category
-            category_transactions = all_transactions.filter(
-                categories__category=category,
-                status=True  # Only count successful transactions
-            ).order_by('-date', '-time')
-            
-            # Get all successful payments for this category
-            payments = []
-            for trans in category_transactions:
-                category_payment = trans.categories.filter(category=category).first()
-                if category_payment:
-                    payments.append({
-                        'transaction': trans,
-                        'amount': category_payment.amount,
-                        'date': trans.date
-                    })
-            
-            one_time_fees.append({
-                'category': dict(PaymentCategory.CATEGORY_CHOICES)[category],
-                'status': 'Paid' if payments else 'Not Paid',
-                'payments': payments,  # Include all payments
-                'total_amount': sum(payment['amount'] for payment in payments) if payments else None
-            })
+        one_time_fees = all_transactions.filter(
+            ~Q(categories__category='tuition')
+        ).distinct().order_by('-date')
 
         # Get all monthly fees (tuition)
         monthly_fees = all_transactions.filter(
@@ -187,7 +162,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         ).order_by('date')  # Changed to ascending order
 
         # Create a list of months with payment status
-        current_date = datetime.now().date()
+        current_date = datetime.now().date()  # Convert to date object
         months = []
         
         # Get the earliest transaction date
@@ -213,7 +188,7 @@ class UserProfileAdmin(admin.ModelAdmin):
             total_amount = sum(trans.total_amount for trans in month_transactions)
             
             # Get the latest transaction for this month
-            latest_transaction = month_transactions.order_by('-date', '-time').first()
+            latest_transaction = month_transactions.order_by('-date').first()
             
             months.append({
                 'month': month_str,
