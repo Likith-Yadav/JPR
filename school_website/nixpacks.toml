@@ -11,4 +11,4 @@ cmds = [
 ]
 
 [start]
-cmd = 'source /opt/venv/bin/activate && gunicorn school_website.wsgi:application --bind 0.0.0.0:$PORT' 
+cmd = 'source /opt/venv/bin/activate && python setup_db.py && gunicorn school_website.wsgi:application --bind 0.0.0.0:$PORT' 

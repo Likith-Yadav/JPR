@@ -1,6 +1,7 @@
 # Database
 db.sqlite3
 db.sqlite3-journal
+backups/
 
 # Python
 __pycache__/
@@ -15,4 +16,8 @@ env/
 # IDE
 .idea/
 .vscode/
-.DS_Store 
+.DS_Store
+
+# Environment variables
+.env
+.env.local 
